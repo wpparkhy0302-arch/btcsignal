@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Signal AI — Real-Time Trading Signals</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0d14; --card:#13192a; --card2:#1a2236;
+  --border:#1e2d47; --border2:#263654;
+  --green:#06b66b; --green-bg:rgba(6,182,107,0.1); --green-dim:rgba(6,182,107,0.06);
+  --red:#f04452; --red-bg:rgba(240,68,82,0.1);
+  --blue:#3182f6; --blue-bg:rgba(49,130,246,0.1);
+  --gold:#f5a623;
+  --text:#e8edf5; --text2:#8b95a7; --text3:#4a5568;
+  --r:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;}
+
+/* ── 실시간 구매 알림 토스트 ── */
+.toast-wrap{position:fixed;bottom:28px;left:28px;z-index:999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.toast{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card2);border:1px solid var(--border2);
+  border-left:3px solid var(--green);
+  border-radius:10px;padding:12px 16px;
+  font-size:13px;color:var(--text);
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transform:translateX(-120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  max-width:300px;pointer-events:none;
+}
+.toast.show{transform:translateX(0);}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 1s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.toast-text{flex:1;}
+.toast-name{font-weight:600;color:var(--green);}
+.toast-time{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* ── Nav ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,13,20,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;}
+.nav-inner{max-width:1100px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo-icon{width:32px;height:32px;border-radius:8px;background:var(--green);display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;}
+.nav-logo-text{font-weight:700;font-size:16px;}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--text2);}
+.nav-links a{color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-btn{padding:8px 20px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;}
+
+/* ── Hero ── */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 20px 80px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(6,182,107,0.08) 0%,transparent 70%);}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--green-bg);border:1px solid rgba(6,182,107,.3);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;color:var(--green);margin-bottom:28px;}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.2s ease-in-out infinite;}
+.hero h1{font-size:clamp(32px,5vw,60px);font-weight:800;line-height:1.18;margin-bottom:24px;letter-spacing:-1px;}
+.hero h1 span{color:var(--green);}
+.hero-sub{font-size:18px;color:var(--text2);max-width:540px;margin:0 auto 40px;line-height:1.7;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:60px;}
+.btn-primary{padding:16px 36px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;}
+.btn-primary:hover{opacity:.88;transform:translateY(-2px);}
+.btn-ghost{padding:16px 36px;background:transparent;color:var(--text);border:1px solid var(--border2);border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;}
+.btn-ghost:hover{border-color:var(--text2);}
+.btn-trial{padding:16px 36px;background:transparent;color:var(--green);border:1px solid rgba(6,182,107,.4);border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;}
+.btn-trial:hover{background:var(--green-bg);border-color:var(--green);}
+
+/* ── Stats ── */
+.hero-stats{display:flex;gap:0;justify-content:center;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);max-width:420px;margin:0 auto;}
+.stat{flex:1;padding:20px 24px;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat-val{font-size:26px;font-weight:800;color:var(--green);font-family:'IBM Plex Mono',monospace;line-height:1;}
+.stat-lbl{font-size:12px;color:var(--text2);margin-top:6px;}
+
+/* ── Section ── */
+section{padding:90px 20px;}
+.inner{max-width:1100px;margin:0 auto;}
+.sec-badge{display:inline-block;background:var(--green-bg);color:var(--green);border:1px solid rgba(6,182,107,.3);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;margin-bottom:14px;}
+.sec-title{font-size:clamp(24px,4vw,40px);font-weight:800;margin-bottom:14px;letter-spacing:-.5px;}
+.sec-sub{font-size:16px;color:var(--text2);max-width:520px;}
+.text-center{text-align:center;}
+.sec-sub.center{margin:0 auto;}
+
+/* ── Features ── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px;}
+@media(max-width:768px){.feat-grid{grid-template-columns:1fr;}}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;transition:border-color .2s;}
+.feat-card:hover{border-color:var(--green);}
+.feat-icon{width:44px;height:44px;border-radius:10px;background:var(--green-bg);border:1px solid rgba(6,182,107,.25);display:grid;place-items:center;font-size:20px;margin-bottom:18px;}
+.feat-title{font-size:16px;font-weight:700;margin-bottom:8px;}
+.feat-desc{font-size:14px;color:var(--text2);line-height:1.7;}
+
+/* ── Live signal preview ── */
+.signal-preview{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:56px;}
+.preview-bar{background:var(--card2);padding:12px 20px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.preview-dots{display:flex;gap:6px;}
+.pd{width:10px;height:10px;border-radius:50%;}
+.preview-title{font-size:13px;color:var(--text2);margin-left:8px;}
+.preview-live{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);}
+.preview-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.2s infinite;}
+.preview-body{padding:24px;}
+.preview-signal{background:var(--green-dim);border:2px solid rgba(6,182,107,.3);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.ps-badge{background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:4px;margin-bottom:6px;display:inline-block;}
+.ps-name{font-size:28px;font-weight:800;color:var(--green);}
+.ps-reason{font-size:13px;color:var(--text2);margin-top:4px;}
+.ps-right{text-align:right;}
+.ps-lev-lbl{font-size:11px;color:var(--text2);margin-bottom:2px;}
+.ps-lev{font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;}
+.preview-prices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.pp-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.pp-lbl{font-size:13px;font-weight:700;margin-bottom:6px;}
+.pp-lbl.buy{color:var(--green);}
+.pp-lbl.sell{color:var(--red);}
+.pp-lbl.stop{color:var(--gold);}
+.pp-val{font-size:14px;font-family:'IBM Plex Mono',monospace;color:var(--text2);}
+
+/* ── Reviews (Social Proof) ── */
+.reviews-sec{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px;}
+@media(max-width:768px){.reviews-grid{grid-template-columns:1fr;}}
+.review-card{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:24px;}
+.review-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.review-avatar{width:42px;height:42px;border-radius:50%;background:var(--card2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.review-stars{color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:2px;}
+.review-name{font-size:13px;color:var(--text2);}
+.review-text{font-size:15px;font-weight:500;color:var(--text);line-height:1.7;}
+.review-tag{display:inline-block;margin-top:12px;font-size:11px;color:var(--green);background:var(--green-bg);border:1px solid rgba(6,182,107,.2);padding:2px 10px;border-radius:20px;}
+
+/* ── 실시간 구매 현황 ── */
+.purchase-sec{}
+.purchase-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.purchase-live-badge{display:flex;align-items:center;gap:8px;background:var(--red-bg);border:1px solid rgba(240,68,82,.3);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--red);}
+.purchase-list{display:flex;flex-direction:column;gap:10px;}
+.purchase-item{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;animation:slideIn .4s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.pi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pi-dot.green{background:var(--green);}
+.pi-dot.blue{background:var(--blue);}
+.pi-name{font-weight:600;font-size:14px;flex:1;}
+.pi-plan{font-size:12px;color:var(--text2);}
+.pi-plan span{color:var(--green);font-weight:600;}
+.pi-time{font-size:12px;color:var(--text3);white-space:nowrap;}
+.pi-price{font-size:14px;font-weight:700;color:var(--green);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+
+/* ── Pricing ── */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:56px;}
+@media(max-width:768px){.pricing-grid{grid-template-columns:1fr;}}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px 28px;position:relative;transition:border-color .2s;}
+.price-card.popular{border-color:var(--green);background:var(--green-dim);}
+.popular-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:12px;font-weight:700;padding:4px 16px;border-radius:20px;white-space:nowrap;}
+.price-plan{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px;}
+.price-amount{font-size:36px;font-weight:800;color:var(--text);font-family:'IBM Plex Mono',monospace;margin-bottom:4px;}
+.price-period{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.price-features{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.pf{display:flex;align-items:center;gap:10px;font-size:14px;}
+.pf-check{color:var(--green);flex-shrink:0;font-size:15px;}
+.price-btn{width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .2s;}
+.price-btn.primary{background:var(--green);color:#fff;}
+.price-btn.primary:hover{opacity:.88;}
+.price-btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border2);}
+.price-btn.ghost:hover{border-color:var(--green);color:var(--green);}
+
+/* ── CTA ── */
+.cta-sec{background:var(--green-dim);border-top:1px solid rgba(6,182,107,.15);border-bottom:1px solid rgba(6,182,107,.15);text-align:center;}
+
+/* ── Footer ── */
+footer{padding:40px 20px;border-top:1px solid var(--border);text-align:center;color:var(--text3);font-size:13px;line-height:1.8;}
+
+/* ── 숫자 카운터 애니메이션 ── */
+.counter{display:inline-block;}
+</style>
+</head>
+<body>
+
+<!-- ── 실시간 구매 토스트 알림 ── -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ── Nav ── -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">₿</div>
+      <div class="nav-logo-text">BTC Signal AI</div>
+    </div>
+    <div class="nav-links">
+      <a href="#features">기능</a>
+      <a href="#reviews">후기</a>
+      <a href="#pricing">가격</a>
+    </div>
+    <a class="nav-btn" href="#pricing">지금 시작하기</a>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div style="position:relative;z-index:1;width:100%;">
+    <div style="max-width:800px;margin:0 auto;">
+      <div class="hero-badge"><div class="hero-badge-dot"></div> 실시간 바이낸스 연동 · 완전 자동 분석</div>
+      <h1>BTC 매매 신호를<br><span>AI가 자동으로</span> 알려드립니다</h1>
+      <p class="hero-sub">차트 볼 줄 몰라도 괜찮아요.<br>지금 이 순간 진입해야 할지, 기다려야 할지 — 바로 알려드립니다</p>
+      <div class="hero-btns">
+        <a class="btn-primary" href="https://open.kakao.com/o/sNpTOpni" target="_blank" rel="noopener">지금 구매하기</a>
+        <a class="btn-ghost" href="#features">기능 살펴보기</a>
+        <a class="btn-trial" href="btc-analyzer-v3.html?trial=1" target="_blank">🔍 무료 체험해보기</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-val"><span id="cnt1">127</span>+</div><div class="stat-lbl">누적 구매자</div></div>
+        <div class="stat"><div class="stat-val"><span id="cnt2">96</span>%</div><div class="stat-lbl">재구독률</div></div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Features ── -->
+<section id="features">
+  <div class="inner">
+    <div class="text-center">
+      <div class="sec-badge">핵심 기능</div>
+      <div class="sec-title">왜 BTC Signal AI인가요?</div>
+      <p class="sec-sub center">지금 롱인지 숏인지, 바로 확인하세요.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">시장을 읽는 눈, 자동으로 탑재</div>
+        <div class="feat-desc">전문 트레이더들이 수년간 익히는 분석 기법을 0.1초 만에 자동으로 처리합니다. 당신은 신호만 확인하면 됩니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">롱/숏 신호 즉시 표시</div>
+        <div class="feat-desc">지표 종합 점수를 기반으로 롱·숏·관망 중 최적 포지션을 자동으로 결정하고, 권장 레버리지까지 함께 알려드립니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🎯</div>
+        <div class="feat-title">진입가·목표가·손절가 자동 계산</div>
+        <div class="feat-desc">ATR 기반으로 진입 가격, 목표 매도가, 손절 라인을 실제 달러 가격으로 정확하게 계산해 제공합니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📈</div>
+        <div class="feat-title">바이낸스 실시간 차트 연동</div>
+        <div class="feat-desc">TradingView 기반 실시간 캔들 차트를 제공합니다. BTC·ETH·SOL·BNB 등 주요 코인과 1분~1일봉을 선택할 수 있습니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔄</div>
+        <div class="feat-title">60초마다 자동 새로고침</div>
+        <div class="feat-desc">버튼을 누르지 않아도 1분마다 자동으로 분석이 갱신됩니다. 놓치는 신호 없이 항상 최신 상태를 유지합니다.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔐</div>
+        <div class="feat-title">라이선스 기반 안전한 접근</div>
+        <div class="feat-desc">구매자에게만 발급되는 라이선스 키로 보호됩니다. 키 없이는 접근이 불가능하며 만료 시 자동 차단됩니다.</div>
+      </div>
+    </div>
+
+    <!-- 앱 미리보기 -->
+    <div class="signal-preview">
+      <div class="preview-bar">
+        <div class="preview-dots">
+          <div class="pd" style="background:#f04452"></div>
+          <div class="pd" style="background:#f5a623"></div>
+          <div class="pd" style="background:#06b66b"></div>
+        </div>
+        <div class="preview-title">btcsignal.ai — 실시간 분석</div>
+        <div class="preview-live"><div class="preview-live-dot"></div>LIVE</div>
+      </div>
+      <div class="preview-body">
+        <div class="preview-signal">
+          <div>
+            <div class="ps-badge">LONG</div>
+            <div class="ps-name">롱 (LONG)</div>
+            <div class="ps-reason">RSI 저점권 · MACD 골든크로스 · MA20·MA50 상회</div>
+          </div>
+          <div class="ps-right">
+            <div class="ps-lev-lbl">권장 레버리지</div>
+            <div class="ps-lev" style="color:var(--text)">3x ~ 5x</div>
+          </div>
+        </div>
+        <div class="preview-prices">
+          <div class="pp-card">
+            <div class="pp-lbl buy">권장 진입가</div>
+            <div class="pp-val" style="filter:blur(5px);user-select:none">$70,840.00</div>
+          </div>
+          <div class="pp-card">
+            <div class="pp-lbl sell">목표 매도가</div>
+            <div class="pp-val" style="filter:blur(5px);user-select:none">$72,450.00</div>
+          </div>
+          <div class="pp-card">
+            <div class="pp-lbl stop">손절 라인</div>
+            <div class="pp-val" style="filter:blur(5px);user-select:none">$70,035.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 실시간 구매 현황 ── -->
+<section style="padding:60px 20px;background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="inner">
+    <div class="purchase-header">
+      <div>
+        <div class="sec-badge">실시간 현황</div>
+        <div class="sec-title" style="font-size:28px;margin-bottom:0">지금 이 순간도 구매가 이어지고 있어요</div>
+      </div>
+      <div class="purchase-live-badge">
+        <div class="pi-dot green" style="animation:blink 1s infinite"></div>
+        실시간 업데이트 중
+      </div>
+    </div>
+    <div class="purchase-list" id="purchaseList"></div>
+  </div>
+</section>
+
+<!-- ── Reviews ── -->
+<section id="reviews" class="reviews-sec">
+  <div class="inner">
+    <div class="text-center">
+      <div class="sec-badge">실제 사용자 후기</div>
+      <div class="sec-title">이미 많은 분들이 사용 중이에요</div>
+      <p class="sec-sub center">과장 없는 실제 구매자들의 솔직한 후기입니다.</p>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-top">
+          <div class="review-avatar">😊</div>
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-name">ko***27</div>
+          </div>
+        </div>
+        <div class="review-text">"처음에 반신반의했는데 신호대로 진입하니까 손절 한 번도 안 걸리고 수익 났어요. 특히 손절라인이 딱딱 맞아떨어지는 게 신기함"</div>
+        <div class="review-tag">3개월 구독 중</div>
+      </div>
+      <div class="review-card">
+        <div class="review-top">
+          <div class="review-avatar">🙂</div>
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-name">bit***91</div>
+          </div>
+        </div>
+        <div class="review-text">"차트 볼 줄 몰라서 항상 감으로 매매했는데 이거 쓰고 나서 훨씬 냉정하게 판단하게 됐어요. 자동으로 신호 뜨니까 감정매매가 줄었음"</div>
+        <div class="review-tag">1개월 → 영구 업그레이드</div>
+      </div>
+      <div class="review-card">
+        <div class="review-top">
+          <div class="review-avatar">😄</div>
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-name">trd***55</div>
+          </div>
+        </div>
+        <div class="review-text">"롱 신호 뜨면 진입가·목표가·손절가가 다 나오니까 계획 세우기 완전 편해요. RSI MACD 각각 보던 걸 한번에 종합해줘서 시간도 절약됨"</div>
+        <div class="review-tag">6개월 구독 중</div>
+      </div>
+      <div class="review-card">
+        <div class="review-top">
+          <div class="review-avatar">😎</div>
+          <div>
+            <div class="review-stars">★★★★☆</div>
+            <div class="review-name">moon***k</div>
+          </div>
+        </div>
+        <div class="review-text">"4시간봉 신호 기준으로 스윙 트레이딩 하는데 꽤 정확해요. 물론 100%는 아니지만 승률 자체가 올라간 건 확실함. 가격 대비 만족"</div>
+        <div class="review-tag">3개월 구독 중</div>
+      </div>
+      <div class="review-card">
+        <div class="review-top">
+          <div class="review-avatar">🤩</div>
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-name">jin***42</div>
+          </div>
+        </div>
+        <div class="review-text">"직장인이라 차트 계속 못 보는데 60초마다 자동 갱신되니까 퇴근하고 확인해도 최신 신호 볼 수 있어서 좋음. UI도 깔끔하고 읽기 편함"</div>
+        <div class="review-tag">영구 구독</div>
+      </div>
+      <div class="review-card">
+        <div class="review-top">
+          <div class="review-avatar">😁</div>
+          <div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-name">won***78</div>
+          </div>
+        </div>
+        <div class="review-text">"주변 코인 하는 친구한테도 소개해줬어요. 입문자도 쓰기 쉽고 롱/숏 개념만 알면 바로 활용 가능. 다음 달도 계속 쓸 예정입니다"</div>
+        <div class="review-tag">1개월 → 3개월 연장</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ── -->
+<section id="pricing">
+  <div class="inner">
+    <div class="text-center">
+      <div class="sec-badge">요금제</div>
+      <div class="sec-title">합리적인 가격으로 시작하세요</div>
+      <p class="sec-sub center" style="max-width:700px">구독 기간이 길수록 월 단가가 낮아져요. 모든 플랜에서 동일한 기능을 사용할 수 있어요.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">1개월</div>
+        <div class="price-amount">29,900</div>
+        <div class="price-period">원 / 월</div>
+        <div class="price-features">
+          <div class="pf"><span class="pf-check">✓</span>실시간 BTC·ETH·SOL·BNB 분석</div>
+          <div class="pf"><span class="pf-check">✓</span>롱/숏/관망 자동 신호</div>
+          <div class="pf"><span class="pf-check">✓</span>진입가·목표가·손절가</div>
+          <div class="pf"><span class="pf-check">✓</span>실시간 차트 (1분~1일봉)</div>
+          <div class="pf"><span class="pf-check">✓</span>60초 자동 갱신</div>
+        </div>
+        <button class="price-btn ghost" onclick="openKakao()">지금 구매하기</button>
+      </div>
+      <div class="price-card popular">
+        <div class="popular-badge">🔥 가장 인기</div>
+        <div class="price-plan">3개월</div>
+        <div class="price-amount">79,000</div>
+        <div class="price-period">원 (월 26,300원)</div>
+        <div class="price-features">
+          <div class="pf"><span class="pf-check">✓</span>1개월 플랜 전체 포함</div>
+          <div class="pf"><span class="pf-check">✓</span>월 3,600원 절약</div>
+          <div class="pf"><span class="pf-check">✓</span>우선 고객지원</div>
+          <div class="pf"><span class="pf-check">✓</span>신규 기능 우선 제공</div>
+          <div class="pf"><span class="pf-check">✓</span>구독 중 업데이트 무료</div>
+        </div>
+        <button class="price-btn primary" onclick="openKakao()">지금 구매하기</button>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">12개월</div>
+        <div class="price-amount">249,000</div>
+        <div class="price-period">원 / 1년 (월 20,750원)</div>
+        <div class="price-features">
+          <div class="pf"><span class="pf-check">✓</span>3개월 플랜 전체 포함</div>
+          <div class="pf"><span class="pf-check">✓</span>월 20,750원으로 최저가</div>
+          <div class="pf"><span class="pf-check">✓</span>1년간 모든 업데이트 무료</div>
+          <div class="pf"><span class="pf-check">✓</span>VIP 고객지원</div>
+          <div class="pf"><span class="pf-check">✓</span>신규 코인 추가 시 자동 포함</div>
+        </div>
+        <button class="price-btn ghost" onclick="openKakao()">지금 구매하기</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:20px;">
+      <a href="btc-analyzer-v3.html?trial=1" target="_blank" style="font-size:14px;color:var(--green);text-decoration:none;border-bottom:1px solid rgba(6,182,107,.3);padding-bottom:2px;">🔍 결제 전 무료로 먼저 체험해보기 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-sec">
+  <div class="inner" style="text-align:center;padding:20px 0;">
+    <div class="sec-title">지금 바로 시작해보세요</div>
+    <p class="sec-sub center" style="margin:14px auto 32px;">오늘 구매하면 즉시 라이선스 키를 받아 사용할 수 있어요</p>
+    <a class="btn-primary" href="https://open.kakao.com/o/sNpTOpni" target="_blank" style="font-size:17px;padding:18px 48px;">지금 구매하기</a>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div>BTC Signal AI · 실시간 기술적 분석 자동화 서비스</div>
+  <div style="margin-top:6px;">본 서비스는 투자 참고용 정보를 제공하며, 실제 투자 결정은 본인 책임입니다.</div>
+</footer>
+
+<script>
+// ── 카카오톡 오픈채팅 연결 ──
+function openKakao() {
+  window.open('https://open.kakao.com/o/sNpTOpni', '_blank');
+}
+
+
+async function loadLandingStats() {
+  try {
+    const url = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1/stats?_=' + Date.now();
+    const res = await fetch(url, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error('HTTP ' + res.status);
+    }
+
+    const data = await res.json();
+
+    const el1 = document.getElementById('cnt1');
+    const el2 = document.getElementById('cnt2');
+
+    if (el1 && typeof data.buyers !== 'undefined') {
+      el1.textContent = String(data.buyers);
+    }
+    if (el2 && typeof data.resub_rate !== 'undefined') {
+      el2.textContent = String(data.resub_rate);
+    }
+  } catch (e) {
+    console.error('랜딩 통계 불러오기 실패', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadLandingStats);
+window.addEventListener('pageshow', loadLandingStats);
+setInterval(loadLandingStats, 30000);
+
+// 카운터는 인라인으로 처리됨
+
+// ── 실시간 구매 현황 / 토스트 데이터 ──
+const defaultProofData = {
+  items: [
+    { name:'ko***27', plan:'3개월', price:'79,000원', color:'green', enabled:true },
+    { name:'bit***91', plan:'12개월', price:'249,000원', color:'blue', enabled:true },
+    { name:'trd***55', plan:'1개월', price:'29,900원', color:'green', enabled:true },
+    { name:'moon***k', plan:'3개월', price:'79,000원', color:'green', enabled:true },
+    { name:'jin***42', plan:'12개월', price:'249,000원', color:'blue', enabled:true },
+    { name:'won***78', plan:'1개월', price:'29,900원', color:'green', enabled:true },
+    { name:'sol***33', plan:'3개월', price:'79,000원', color:'green', enabled:true }
+  ],
+  toast_phrases: [
+    '방금 합류하셨어요',
+    '조금 전 구매 완료',
+    '최근 등록 완료',
+    '지금 막 시작하셨어요'
+  ]
+};
+
+let proofData = JSON.parse(JSON.stringify(defaultProofData));
+let purchaseRenderTimers = [];
+
+function clearPurchaseRenderTimers() {
+  purchaseRenderTimers.forEach(id => clearTimeout(id));
+  purchaseRenderTimers = [];
+}
+
+function renderPurchaseList(items) {
+  const list = document.getElementById('purchaseList');
+  if (!list) return;
+
+  clearPurchaseRenderTimers();
+  list.innerHTML = '';
+
+  const enabledItems = (items || []).filter(item => item && item.enabled !== false);
+
+  enabledItems.forEach((p, i) => {
+    const timerId = setTimeout(() => {
+      const item = document.createElement('div');
+      item.className = 'purchase-item';
+      item.innerHTML = `
+        <div class="pi-dot ${p.color || 'green'}"></div>
+        <div class="pi-name">${p.name || ''} <span style="font-size:13px;color:var(--text2);font-weight:400">님께서 구매하셨습니다</span></div>
+        <div class="pi-plan">플랜: <span>${p.plan || ''}</span></div>
+        <div class="pi-price">${p.price || ''}</div>
+      `;
+      list.appendChild(item);
+    }, i * 150);
+    purchaseRenderTimers.push(timerId);
+  });
+}
+
+function showToast() {
+  const wrap = document.getElementById('toastWrap');
+  if (!wrap) return;
+
+  const enabledItems = (proofData.items || []).filter(item => item && item.enabled !== false);
+  if (!enabledItems.length) return;
+
+  const phrases = (proofData.toast_phrases || []).filter(Boolean);
+  const selected = enabledItems[Math.floor(Math.random() * enabledItems.length)];
+  const phrase = phrases.length
+    ? phrases[Math.floor(Math.random() * phrases.length)]
+    : '최근 등록 완료';
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `
+    <div class="toast-dot"></div>
+    <div class="toast-text">
+      <div><span class="toast-name">${selected.name || ''}</span> 님께서 구매하셨습니다</div>
+      <div class="toast-time">${selected.plan || ''} 플랜 · ${phrase}</div>
+    </div>
+  `;
+  wrap.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 50);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, 4000);
+}
+
+async function loadSocialProofData() {
+  try {
+    const url = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1/proof-data?_=' + Date.now();
+    const res = await fetch(url, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const data = await res.json();
+    if (data && Array.isArray(data.items)) {
+      proofData = {
+        items: data.items,
+        toast_phrases: Array.isArray(data.toast_phrases) ? data.toast_phrases : defaultProofData.toast_phrases
+      };
+    }
+  } catch (e) {
+    console.error('실시간 구매 데이터 불러오기 실패', e);
+    proofData = JSON.parse(JSON.stringify(defaultProofData));
+  }
+
+  renderPurchaseList(proofData.items);
+}
+
+document.addEventListener('DOMContentLoaded', loadSocialProofData);
+window.addEventListener('pageshow', () => {
+  setTimeout(loadSocialProofData, 50);
+});
+
+setTimeout(() => {
+  showToast();
+  setInterval(showToast, Math.random() * 7000 + 8000);
+}, 3000);
+</script>
+</body>
+</html>

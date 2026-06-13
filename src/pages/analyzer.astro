@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Signal AI v3</title>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0e1117; --card:#161b27; --card2:#1c2333;
+  --border:#252e42; --border2:#2d3a52;
+  --long:#06b66b; --long-bg:rgba(6,182,107,0.1);
+  --short:#f04452; --short-bg:rgba(240,68,82,0.1);
+  --hold:#f5a623; --hold-bg:rgba(245,166,35,0.1);
+  --blue:#3182f6; --blue-bg:rgba(49,130,246,0.1);
+  --text:#e8edf5; --text2:#8b95a7; --text3:#556070;
+  --r:10px; --r-sm:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;line-height:1.5;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ── License Gate ── */
+.lg{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.lg.hidden{display:none;}
+.lg-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:100%;max-width:400px;text-align:center;}
+.lg-logo{width:52px;height:52px;border-radius:12px;background:var(--long);display:grid;place-items:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 14px;}
+.lg-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--long);background:var(--long-bg);border:1px solid rgba(6,182,107,.3);padding:3px 12px;border-radius:20px;margin-bottom:18px;}
+.lg-dot{width:5px;height:5px;border-radius:50%;background:var(--long);animation:pulse 1.5s infinite;}
+.lg-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.lg-sub{font-size:13px;color:var(--text2);margin-bottom:28px;line-height:1.6;}
+.lg-input{width:100%;padding:13px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);margin-bottom:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-align:center;outline:none;}
+.lg-input:focus{border-color:var(--long);}
+.lg-input::placeholder{letter-spacing:0;color:var(--text3);font-family:'Inter',sans-serif;}
+.lg-btn{width:100%;padding:13px;background:var(--long);color:#fff;font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;}
+.lg-btn:hover{opacity:.88;}
+.lg-error{font-size:12px;color:var(--short);margin-top:10px;min-height:18px;}
+.lg-info{font-size:11px;color:var(--text3);margin-top:20px;line-height:1.7;}
+
+/* ── Layout ── */
+.wrap{max-width:1080px;margin:0 auto;padding:24px 20px;}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.hd-left{display:flex;align-items:center;gap:12px;}
+.logo{width:36px;height:36px;border-radius:8px;background:var(--long);display:grid;place-items:center;font-size:16px;font-weight:700;color:#fff;}
+.hd-title{font-size:18px;font-weight:700;}
+.hd-sub{font-size:12px;color:var(--text2);margin-top:1px;}
+.hd-badge{font-size:11px;font-weight:600;color:var(--long);background:var(--long-bg);border:1px solid rgba(6,182,107,.3);padding:3px 10px;border-radius:20px;}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:4px;gap:0;margin-bottom:20px;}
+.tab{flex:1;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .18s;text-align:center;border:none;background:none;}
+.tab.active{background:var(--long);color:#fff;font-weight:600;}
+
+/* ── Panels ── */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ── Controls ── */
+.ctrl-row{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.sym-select,.tf-select{padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);font-size:13px;color:var(--text);cursor:pointer;outline:none;font-family:'Inter',sans-serif;}
+.sym-select:focus,.tf-select:focus{border-color:var(--long);}
+.btn-refresh{padding:9px 20px;background:var(--long);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-refresh:hover{opacity:.88;}
+.btn-refresh:disabled{opacity:.4;cursor:not-allowed;}
+.ws-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-left:auto;}
+.ws-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+.ws-dot.live{background:var(--long);animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Ticker ── */
+.ticker-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.ticker-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;min-width:130px;flex:1;}
+.ticker-lbl{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:4px;}
+.ticker-val{font-size:18px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ticker-val.pos{color:var(--long);}
+.ticker-val.neg{color:var(--short);}
+.ticker-val.neu{color:var(--text);}
+
+/* ── Chart ── */
+#chart-container{width:100%;height:400px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
+
+/* ── Signal Hero ── */
+.sig-hero{border-radius:var(--r);padding:22px 26px;margin-bottom:10px;border:2px solid;}
+.sig-hero-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.sig-hero-bottom{display:flex;align-items:center;gap:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);}
+.sig-entry-lbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+.sig-entry-val{font-size:19px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.sig-entry-val.long{color:var(--long);}
+.sig-entry-val.short{color:var(--short);}
+.sig-entry-val.hold{color:var(--hold);}
+.sig-conf-wrap{flex:1;}
+.sig-conf-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
+.sig-conf-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;}
+.sig-conf-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.sig-conf-fill.long{background:var(--long);}
+.sig-conf-fill.short{background:var(--short);}
+.sig-conf-fill.hold{background:var(--hold);}
+.sig-hero.long{background:var(--long-bg);border-color:rgba(6,182,107,.4);}
+.sig-hero.short{background:var(--short-bg);border-color:rgba(240,68,82,.4);}
+.sig-hero.hold{background:var(--hold-bg);border-color:rgba(245,166,35,.4);}
+.sig-left{display:flex;align-items:center;gap:16px;}
+.sig-badge{font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:4px;margin-bottom:6px;display:inline-block;}
+.sig-badge.long{background:var(--long);color:#fff;}
+.sig-badge.short{background:var(--short);color:#fff;}
+.sig-badge.hold{background:var(--hold);color:#fff;}
+.sig-name{font-size:28px;font-weight:700;line-height:1;}
+.sig-name.long{color:var(--long);}
+.sig-name.short{color:var(--short);}
+.sig-name.hold{color:var(--hold);}
+.sig-reason{font-size:13px;color:var(--text2);margin-top:5px;max-width:500px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sig-right{text-align:right;flex-shrink:0;}
+.sig-lev-lbl{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px;}
+.sig-lev-val{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);}
+
+/* ── 3-col summary ── */
+.sum-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;}
+.sum-lbl{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:6px;}
+.sum-val{font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.sum-val.pos{color:var(--long);}
+.sum-val.neg{color:var(--short);}
+.sum-val.neu{color:var(--hold);}
+.sum-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+
+/* ── Price Cards ── */
+.price-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
+.price-tag{font-size:17px;font-weight:700;margin-bottom:8px;}
+.price-tag.buy{color:var(--long);}
+.price-tag.sell{color:var(--short);}
+.price-tag.stop{color:var(--hold);}
+.price-val{font-size:13px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--text);margin-bottom:4px;}
+.price-note{font-size:12px;color:var(--text2);line-height:1.5;}
+
+/* ── Indicators ── */
+.sec-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;}
+.ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}@media(max-width:900px){.ind-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:640px){.ind-grid{grid-template-columns:repeat(2,1fr);}.sum-row,.price-row{grid-template-columns:1fr;}}
+.ind-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
+.ind-name{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:6px;}
+.ind-row{display:flex;align-items:center;gap:7px;}
+.ind-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ind-dot.bull{background:var(--long);}
+.ind-dot.bear{background:var(--short);}
+.ind-dot.neu{background:var(--hold);}
+.ind-val{font-size:13px;font-weight:600;font-family:'IBM Plex Mono',monospace;}
+.ind-val.bull{color:var(--long);}
+.ind-val.bear{color:var(--short);}
+.ind-val.neu{color:var(--hold);}
+.ind-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+
+/* ── Analysis card ── */
+.ana-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:8px;}
+.ana-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.ana-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ana-body{font-size:13px;color:var(--text2);line-height:1.8;}
+
+/* ── RR block ── */
+.rr-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:20px;}
+.rr-item{text-align:center;}
+.rr-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.rr-val{font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+
+/* ── Disclaimer ── */
+.disclaimer{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:11px;color:var(--text3);line-height:1.6;margin-top:8px;}
+
+/* ── Loading ── */
+.loading-state{text-align:center;padding:60px 20px;color:var(--text2);}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--long);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── 체험판 블러 ── */
+.trial-blur{filter:blur(7px);user-select:none;pointer-events:none;transition:filter .3s;}
+.trial-lock{position:relative;}
+.trial-lock-overlay{
+  position:absolute;inset:0;z-index:10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(13,17,26,0.6);border-radius:var(--r);gap:10px;
+}
+.trial-lock-icon{font-size:28px;}
+.trial-lock-text{font-size:13px;font-weight:600;color:var(--text2);text-align:center;}
+.trial-lock-btn{
+  padding:9px 22px;background:var(--green);color:#fff;
+  border:none;border-radius:8px;font-size:13px;font-weight:700;
+  cursor:pointer;margin-top:4px;transition:opacity .2s;
+}
+.trial-lock-btn:hover{opacity:.88;}
+.trial-banner{
+  background:rgba(6,182,107,0.07);border:1px solid rgba(6,182,107,0.25);
+  border-radius:var(--r);padding:12px 18px;margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.trial-banner-text{font-size:13px;color:var(--text2);}
+.trial-banner-text span{color:var(--green);font-weight:600;}
+.trial-banner-btn{
+  padding:7px 18px;background:var(--green);color:#fff;
+  border:none;border-radius:7px;font-size:12px;font-weight:700;
+  cursor:pointer;white-space:nowrap;
+}
+</style>
+</head>
+<body>
+
+<!-- License Gate -->
+<div class="lg" id="licenseGate">
+  <div class="lg-box">
+    <div class="lg-logo">₿</div>
+    <div class="lg-badge"><div class="lg-dot"></div> BTC Signal AI</div>
+    <div class="lg-title">Enter Your License Key</div>
+    <div class="lg-sub">Enter the key from your purchase email<br>and get instant access.</div>
+    <input class="lg-input" id="lgInput" placeholder="BTCAI-XXXX-XXXX-XX" maxlength="32" autocomplete="off">
+    <button class="lg-btn" id="lgBtn" onclick="submitKey()">Confirm Key</button>
+    <div class="lg-error" id="lgError"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0 4px;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span style="font-size:12px;color:var(--text3);">or</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+    <button class="lg-btn" style="background:transparent;border:1px solid var(--border);color:var(--text2);margin-top:0;" onclick="startTrial()">🔍 Try Free Demo</button>
+    <div class="lg-info">Your key is saved on this device after first entry.<br>Support: contact your purchase source</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="hd-left">
+      <div class="logo">₿</div>
+      <div>
+        <div class="hd-title">BTC Signal AI</div>
+        <div class="hd-sub">Real-Time Technical Analysis · Auto Trading Signals</div>
+      </div>
+    </div>
+    <div class="hd-badge">v3.0</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('signal')">📊 Live Analysis</div>
+    <div class="tab" onclick="switchTab('chart')">📈 Chart</div>
+  </div>
+
+  <!-- Signal Panel -->
+  <div class="panel active" id="panel-signal">
+    <div class="ctrl-row">
+      <select class="sym-select" id="symSelect" onchange="onSymbolChange()">
+        <option value="BTCUSDT">BTC/USDT</option>
+        <option value="ETHUSDT">ETH/USDT</option>
+        <option value="SOLUSDT">SOL/USDT</option>
+        <option value="BNBUSDT">BNB/USDT</option>
+      </select>
+      <select class="tf-select" id="tfSelect" onchange="onTfChange()">
+        <option value="1m">1m</option>
+        <option value="5m">5m</option>
+        <option value="15m" selected>15m</option>
+        <option value="1h">1h</option>
+        <option value="4h">4h</option>
+        <option value="1d">1d</option>
+      </select>
+      <button class="btn-refresh" id="refreshBtn" onclick="runAnalysis()">🔄 Refresh Analysis</button>
+      <div class="ws-status"><div class="ws-dot" id="wsDot"></div><span id="wsLbl">Connecting...</span></div>
+    </div>
+
+    <div class="ticker-row">
+      <div class="ticker-card"><div class="ticker-lbl">Price</div><div class="ticker-val neu mono" id="tkPrice">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h Change</div><div class="ticker-val" id="tkChange">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h High</div><div class="ticker-val pos mono" id="tkHigh">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h Low</div><div class="ticker-val neg mono" id="tkLow">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h Volume</div><div class="ticker-val neu" id="tkVol">—</div></div>
+    </div>
+
+    <div id="analysisArea">
+      <div class="loading-state" id="loadingState">
+        <div class="spin"></div>
+        <div>Loading data...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Panel -->
+  <div class="panel" id="panel-chart">
+    <div class="ctrl-row">
+      <select class="sym-select" id="chartSymSelect" onchange="onChartSymChange()">
+        <option value="BTCUSDT">BTC/USDT</option>
+        <option value="ETHUSDT">ETH/USDT</option>
+        <option value="SOLUSDT">SOL/USDT</option>
+        <option value="BNBUSDT">BNB/USDT</option>
+      </select>
+      <select class="tf-select" id="chartTfSelect" onchange="onChartTfChange()">
+        <option value="1m">1m</option>
+        <option value="5m">5m</option>
+        <option value="15m" selected>15m</option>
+        <option value="1h">1h</option>
+        <option value="4h">4h</option>
+        <option value="1d">1d</option>
+      </select>
+      <div class="ws-status"><div class="ws-dot" id="chartWsDot"></div><span id="chartWsLbl">—</span></div>
+    </div>
+    <div id="chart-container"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// LICENSE (server-side verification)
+// ════════════════════════════════════════
+const BACKEND_VERIFY_API = '/api/license/verify';
+const BACKEND_SESSION_API = '/api/license/session';
+
+window.resetLicense = async () => {
+  try {
+    await fetch(BACKEND_SESSION_API, {
+      method: 'DELETE',
+      credentials: 'same-origin'
+    });
+  } catch (e) {}
+  location.reload();
+};
+
+function startTrial() {
+  isTrial = true;
+  document.getElementById('licenseGate').classList.add('hidden');
+  init();
+}
+
+function showLicenseGate() {
+  document.getElementById('licenseGate').classList.remove('hidden');
+  document.getElementById('lgInput').focus();
+}
+
+function setLgErr(msg) {
+  document.getElementById('lgError').textContent = msg || '';
+}
+
+async function submitKey() {
+  const btn = document.getElementById('lgBtn');
+  const key = document.getElementById('lgInput').value.trim().toUpperCase();
+
+  if (!key) {
+    setLgErr('Enter Your License Key.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  setLgErr('');
+
+  try {
+    const res = await fetch(BACKEND_VERIFY_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ key })
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      setLgErr(data.msg || 'Verification failed');
+      return;
+    }
+
+    isTrial = false;
+    document.getElementById('licenseGate').classList.add('hidden');
+    init();
+  } catch (e) {
+    setLgErr('Connection failed: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirm Key';
+  }
+}
+
+document.getElementById('lgInput').addEventListener('input', function() {
+  let v = this.value.replace(/-/g,'').toUpperCase();
+  if (v.length > 5)  v = v.slice(0,5) + '-' + v.slice(5);
+  if (v.length > 10) v = v.slice(0,10) + '-' + v.slice(10);
+  if (v.length > 15) v = v.slice(0,15) + '-' + v.slice(15);
+  this.value = v.slice(0,19);
+});
+document.getElementById('lgInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitKey();
+});
+
+(async function autoAuth() {
+  if (new URLSearchParams(window.location.search).get('trial') === '1') {
+    isTrial = true;
+    document.getElementById('licenseGate').classList.add('hidden');
+    init();
+    return;
+  }
+
+  try {
+    const res = await fetch(BACKEND_SESSION_API, {
+      method: 'GET',
+      credentials: 'same-origin',
+      cache: 'no-store'
+    });
+
+    const data = await res.json();
+
+    if (data.ok) {
+      isTrial = false;
+      document.getElementById('licenseGate').classList.add('hidden');
+      init();
+    }
+  } catch (e) {
+    // keep gate open
+  }
+})();
+
+// ════════════════════════════════════════
+// TAB
+// ════════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===(id==='signal'?0:1)));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (id==='chart') {
+    // 신호 탭과 심볼/TF 동기화
+    chartSymbol = symbol;
+    chartTf = tf;
+    document.getElementById('chartSymSelect').value = chartSymbol;
+    document.getElementById('chartTfSelect').value = chartTf;
+    initChart();
+  }
+}
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let symbol = 'BTCUSDT', tf = '15m';
+let isTrial = false;
+let ws = null, tickerWs = null;
+let klines = []; // [{t,o,h,l,c,v}]
+
+// ════════════════════════════════════════
+// BINANCE DATA
+// ════════════════════════════════════════
+async function fetchKlines(sym, interval, limit=200) {
+  const url = `https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${interval}&limit=${limit}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const raw = await r.json();
+    if (!Array.isArray(raw)) throw new Error('Invalid response');
+    return raw.map(d => ({
+      t: d[0]/1000, o: +d[1], h: +d[2], l: +d[3], c: +d[4], v: +d[5]
+    }));
+  } catch(e) {
+    throw new Error('Binance data load failed. Please access via https:// server.');
+  }
+}
+
+async function fetchTicker(sym) {
+  try {
+    const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  } catch(e) {
+    throw new Error('Binance ticker load failed. Please access via https:// server.');
+  }
+}
+
+function connectTickerWS(sym) {
+  if (tickerWs) tickerWs.close();
+  tickerWs = new WebSocket(`wss://stream.binance.com:9443/ws/${sym.toLowerCase()}@ticker`);
+  tickerWs.onmessage = e => {
+    const d = JSON.parse(e.data);
+    const price = +d.c;
+    const pct = +d.P;
+    document.getElementById('tkPrice').textContent = '$' + price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const chEl = document.getElementById('tkChange');
+    chEl.textContent = (pct>=0?'+':'')+pct.toFixed(2)+'%';
+    chEl.className = 'ticker-val mono ' + (pct>=0?'pos':'neg');
+  };
+  tickerWs.onopen = () => {
+    document.getElementById('wsDot').className='ws-dot live';
+    document.getElementById('wsLbl').textContent='LIVE';
+  };
+  tickerWs.onclose = () => {
+    document.getElementById('wsDot').className='ws-dot';
+    document.getElementById('wsLbl').textContent='Disconnected';
+  };
+}
+
+// ════════════════════════════════════════
+// TECHNICAL INDICATORS
+// ════════════════════════════════════════
+function calcSMA(data, period) {
+  const result = [];
+  for (let i=0; i<data.length; i++) {
+    if (i < period-1) { result.push(null); continue; }
+    const sum = data.slice(i-period+1, i+1).reduce((a,b)=>a+b, 0);
+    result.push(sum/period);
+  }
+  return result;
+}
+
+function calcEMA(data, period) {
+  const k = 2/(period+1);
+  const result = [];
+  let ema = null;
+  for (let i=0; i<data.length; i++) {
+    if (ema === null) { ema = data[i]; result.push(ema); continue; }
+    ema = data[i]*k + ema*(1-k);
+    result.push(ema);
+  }
+  return result;
+}
+
+function calcRSI(closes, period=14) {
+  const gains=[], losses=[];
+  for (let i=1; i<closes.length; i++) {
+    const diff = closes[i]-closes[i-1];
+    gains.push(Math.max(diff,0));
+    losses.push(Math.max(-diff,0));
+  }
+  const result = new Array(period).fill(null);
+  let avgG = gains.slice(0,period).reduce((a,b)=>a+b)/period;
+  let avgL = losses.slice(0,period).reduce((a,b)=>a+b)/period;
+  result.push(100 - 100/(1+(avgG/(avgL||0.0001))));
+  for (let i=period; i<gains.length; i++) {
+    avgG = (avgG*(period-1)+gains[i])/period;
+    avgL = (avgL*(period-1)+losses[i])/period;
+    result.push(100 - 100/(1+(avgG/(avgL||0.0001))));
+  }
+  return result;
+}
+
+function calcMACD(closes, fast=12, slow=26, signal=9) {
+  const emaFast = calcEMA(closes, fast);
+  const emaSlow = calcEMA(closes, slow);
+  const macdLine = emaFast.map((v,i)=> v!==null&&emaSlow[i]!==null ? v-emaSlow[i] : null);
+  const validMacd = macdLine.filter(v=>v!==null);
+  const signalLine = calcEMA(validMacd, signal);
+  const offset = macdLine.length - validMacd.length;
+  const sigFull = new Array(offset).fill(null).concat(
+    new Array(validMacd.length - signalLine.length).fill(null).concat(signalLine)
+  );
+  const histogram = macdLine.map((v,i)=>v!==null&&sigFull[i]!==null ? v-sigFull[i] : null);
+  return { macdLine, signalLine: sigFull, histogram };
+}
+
+function calcBollinger(closes, period=20, mult=2) {
+  const sma = calcSMA(closes, period);
+  const upper=[], lower=[], bandwidth=[];
+  for (let i=0; i<closes.length; i++) {
+    if (sma[i]===null) { upper.push(null); lower.push(null); bandwidth.push(null); continue; }
+    const slice = closes.slice(i-period+1, i+1);
+    const std = Math.sqrt(slice.reduce((s,v)=>s+Math.pow(v-sma[i],2),0)/period);
+    upper.push(sma[i]+mult*std);
+    lower.push(sma[i]-mult*std);
+    bandwidth.push(((sma[i]+mult*std)-(sma[i]-mult*std))/sma[i]*100);
+  }
+  return { mid:sma, upper, lower, bandwidth };
+}
+
+function calcVolumeMA(volumes, period=20) {
+  return calcSMA(volumes, period);
+}
+
+// ── ADX (추세 강도) ──
+function calcADX(kdata, period=14) {
+  const highs = kdata.map(k=>k.h);
+  const lows  = kdata.map(k=>k.l);
+  const closes= kdata.map(k=>k.c);
+  const trArr=[], dmPArr=[], dmNArr=[];
+  for (let i=1; i<kdata.length; i++) {
+    const hl = highs[i]-lows[i];
+    const hpc= Math.abs(highs[i]-closes[i-1]);
+    const lpc= Math.abs(lows[i]-closes[i-1]);
+    trArr.push(Math.max(hl,hpc,lpc));
+    const upMove  = highs[i]-highs[i-1];
+    const downMove= lows[i-1]-lows[i];
+    dmPArr.push(upMove>downMove&&upMove>0?upMove:0);
+    dmNArr.push(downMove>upMove&&downMove>0?downMove:0);
+  }
+  const smooth = (arr, p) => {
+    let s = arr.slice(0,p).reduce((a,b)=>a+b,0);
+    const r=[s];
+    for(let i=p;i<arr.length;i++){s=s-s/p+arr[i];r.push(s);}
+    return r;
+  };
+  const sTR=smooth(trArr,period), sDMP=smooth(dmPArr,period), sDMN=smooth(dmNArr,period);
+  const diP=sDMP.map((v,i)=>sTR[i]?100*v/sTR[i]:0);
+  const diN=sDMN.map((v,i)=>sTR[i]?100*v/sTR[i]:0);
+  const dx=diP.map((v,i)=>{const s=v+diN[i];return s?100*Math.abs(v-diN[i])/s:0;});
+  const adxArr=calcSMA(dx,period);
+  return { adx: adxArr, diP, diN };
+}
+
+// ── 스토캐스틱 RSI ──
+function calcStochRSI(closes, rsiPeriod=14, stochPeriod=14) {
+  const rsi = calcRSI(closes, rsiPeriod).filter(v=>v!==null);
+  const result=[];
+  for(let i=0;i<rsi.length;i++){
+    if(i<stochPeriod-1){result.push(null);continue;}
+    const slice=rsi.slice(i-stochPeriod+1,i+1);
+    const lo=Math.min(...slice), hi=Math.max(...slice);
+    result.push(hi===lo?50:(rsi[i]-lo)/(hi-lo)*100);
+  }
+  return result;
+}
+
+// ── OBV (누적 거래량) ──
+function calcOBV(kdata) {
+  const obv=[0];
+  for(let i=1;i<kdata.length;i++){
+    const prev=obv[obv.length-1];
+    if(kdata[i].c>kdata[i-1].c) obv.push(prev+kdata[i].v);
+    else if(kdata[i].c<kdata[i-1].c) obv.push(prev-kdata[i].v);
+    else obv.push(prev);
+  }
+  return obv;
+}
+
+// ── Fibonacci (스윙 고점/저점 자동 탐지) ──
+function calcFibonacci(kdata, swingLen=10) {
+  const n = kdata.length;
+  // 최근 100개 캔들에서 스윙 고점·저점 탐지
+  const lookback = Math.min(100, n);
+  const slice = kdata.slice(n - lookback);
+  let swingHigh = -Infinity, swingLow = Infinity;
+  let swingHighIdx = 0, swingLowIdx = 0;
+  for(let i=swingLen; i<slice.length-swingLen; i++){
+    const isHigh = slice.slice(i-swingLen,i).every(k=>k.h<=slice[i].h) &&
+                   slice.slice(i+1,i+swingLen+1).every(k=>k.h<=slice[i].h);
+    const isLow  = slice.slice(i-swingLen,i).every(k=>k.l>=slice[i].l) &&
+                   slice.slice(i+1,i+swingLen+1).every(k=>k.l>=slice[i].l);
+    if(isHigh && slice[i].h>swingHigh){ swingHigh=slice[i].h; swingHighIdx=i; }
+    if(isLow  && slice[i].l<swingLow ){ swingLow =slice[i].l; swingLowIdx =i; }
+  }
+  if(swingHigh===-Infinity || swingLow===Infinity) return null;
+  const range = swingHigh - swingLow;
+  const levels = {
+    '0':   swingHigh,
+    '23.6': swingHigh - range*0.236,
+    '38.2': swingHigh - range*0.382,
+    '50':   swingHigh - range*0.5,
+    '61.8': swingHigh - range*0.618,
+    '78.6': swingHigh - range*0.786,
+    '100':  swingLow,
+  };
+  // 추세 방향: 고점이 저점보다 나중이면 하락추세
+  const trend = swingHighIdx > swingLowIdx ? 'down' : 'up';
+  return { levels, swingHigh, swingLow, trend, range };
+}
+
+// ── 거래량 프로파일 POC ──
+function calcVolumeProfile(kdata, bins=20) {
+  const highs  = kdata.map(k=>k.h);
+  const lows   = kdata.map(k=>k.l);
+  const volumes= kdata.map(k=>k.v);
+  const priceMin = Math.min(...lows);
+  const priceMax = Math.max(...highs);
+  const binSize  = (priceMax-priceMin)/bins;
+  const profile  = new Array(bins).fill(0);
+  kdata.forEach((k,i)=>{
+    const lo = Math.floor((k.l-priceMin)/binSize);
+    const hi = Math.ceil((k.h-priceMin)/binSize);
+    for(let b=Math.max(0,lo); b<Math.min(bins,hi+1); b++){
+      profile[b] += volumes[i]/(hi-lo+1);
+    }
+  });
+  let maxVol=0, pocBin=0;
+  profile.forEach((v,i)=>{ if(v>maxVol){maxVol=v;pocBin=i;} });
+  const poc = priceMin + (pocBin+0.5)*binSize;
+  return { poc, priceMin, priceMax, profile };
+}
+
+// ── Candle Pattern 감지 ──
+function detectCandlePattern(kdata) {
+  const n = kdata.length;
+  if(n<3) return { name:'None', signal:'neu', score:0 };
+  const c  = kdata[n-1]; // 현재 캔들
+  const p1 = kdata[n-2]; // 1개 전
+  const p2 = kdata[n-3]; // 2개 전
+
+  const body    = c=>Math.abs(c.c-c.o);
+  const range   = c=>c.h-c.l;
+  const isBull  = c=>c.c>c.o;
+  const isBear  = c=>c.c<c.o;
+  const upperW  = c=>isBull(c)?c.h-c.c:c.h-c.o;
+  const lowerW  = c=>isBull(c)?c.o-c.l:c.c-c.l;
+
+  // 망치형 (Hammer) — 하락 후 저점에서 긴 아래꼬리
+  if(lowerW(c)>=body(c)*2 && upperW(c)<=body(c)*0.5 && isBull(c)){
+    return { name:'망치형', signal:'bull', score:2 };
+  }
+  // 슈팅스타 — 상승 후 고점에서 긴 위꼬리
+  if(upperW(c)>=body(c)*2 && lowerW(c)<=body(c)*0.5 && isBear(c)){
+    return { name:'슈팅스타', signal:'bear', score:-2 };
+  }
+  // 불리시 인걸핑
+  if(isBear(p1) && isBull(c) && c.o<p1.c && c.c>p1.o){
+    return { name:'불리시 인걸핑', signal:'bull', score:3 };
+  }
+  // 베어리시 인걸핑
+  if(isBull(p1) && isBear(c) && c.o>p1.c && c.c<p1.o){
+    return { name:'베어리시 인걸핑', signal:'bear', score:-3 };
+  }
+  // 모닝스타
+  if(isBear(p2) && body(p1)<body(p2)*0.3 && isBull(c) && c.c>p2.o){
+    return { name:'모닝스타', signal:'bull', score:4 };
+  }
+  // 이브닝스타
+  if(isBull(p2) && body(p1)<body(p2)*0.3 && isBear(c) && c.c<p2.o){
+    return { name:'이브닝스타', signal:'bear', score:-4 };
+  }
+  // 도지
+  if(body(c)<range(c)*0.1){
+    return { name:'도지', signal:'neu', score:0 };
+  }
+  return { name:'None', signal:'neu', score:0 };
+}
+
+// ════════════════════════════════════════
+// SIGNAL ENGINE
+// ════════════════════════════════════════
+function generateSignal(kdata) {
+  const closes = kdata.map(k=>k.c);
+  const volumes = kdata.map(k=>k.v);
+  const n = closes.length;
+  const last = n-1;
+
+  // 기존 지표
+  const rsi    = calcRSI(closes, 14);
+  const macd   = calcMACD(closes);
+  const bb     = calcBollinger(closes, 20, 2);
+  const ma20   = calcSMA(closes, 20);
+  const ma50   = calcSMA(closes, 50);
+  const ma200  = calcSMA(closes, 200);
+  const ema12  = calcEMA(closes, 12);
+  const ema26  = calcEMA(closes, 26);
+  const volMA  = calcVolumeMA(volumes, 20);
+
+  // 신규 지표
+  const adxData    = calcADX(kdata, 14);
+  const stochRSI   = calcStochRSI(closes, 14, 14);
+  const obv        = calcOBV(kdata);
+  const fib        = calcFibonacci(kdata, 10);
+  const vp         = calcVolumeProfile(kdata, 30);
+  const candle     = detectCandlePattern(kdata);
+
+  const price        = closes[last];
+  const rsiVal       = rsi[last];
+  const macdVal      = macd.macdLine[last];
+  const macdSig      = macd.signalLine[last];
+  const macdHist     = macd.histogram[last];
+  const macdHistPrev = macd.histogram[last-1];
+  const bbUpper      = bb.upper[last];
+  const bbLower      = bb.lower[last];
+  const bbMid        = bb.mid[last];
+  const ma20Val      = ma20[last];
+  const ma50Val      = ma50[last];
+  const ma200Val     = ma200[last];
+  const ema12Val     = ema12[last];
+  const ema26Val     = ema26[last];
+  const volNow       = volumes[last];
+  const volMAVal     = volMA[last];
+  const adxVal       = adxData.adx[adxData.adx.length-1];
+  const stochVal     = stochRSI[stochRSI.length-1];
+  const obvNow       = obv[last];
+  const obvPrev      = obv[last-5];
+  const poc          = vp?.poc;
+
+  let score = 0;
+  const reasons = [], bearReasons = [];
+
+  // ── RSI ──
+  if (rsiVal < 30)      { score += 2; reasons.push('RSI 과SELL(' + rsiVal.toFixed(1) + ')'); }
+  else if (rsiVal < 45) { score += 1; reasons.push('RSI Low Zone (' + rsiVal.toFixed(1) + ')'); }
+  else if (rsiVal > 70) { score -= 2; bearReasons.push('RSI 과BUY(' + rsiVal.toFixed(1) + ')'); }
+  else if (rsiVal > 60) { score -= 1; bearReasons.push('RSI High Zone (' + rsiVal.toFixed(1) + ')'); }
+
+  // ── MACD ──
+  if (macdVal !== null && macdSig !== null) {
+    if (macdVal > macdSig && macdHistPrev < 0 && macdHist > 0) { score += 2; reasons.push('MACD Golden Cross'); }
+    else if (macdVal > macdSig) { score += 1; reasons.push('MACD Bullish'); }
+    else if (macdVal < macdSig && macdHistPrev > 0 && macdHist < 0) { score -= 2; bearReasons.push('MACD Death Cross'); }
+    else if (macdVal < macdSig) { score -= 1; bearReasons.push('MACD Bearish'); }
+  }
+
+  // ── 볼린저 ──
+  if (bbLower && price <= bbLower)      { score += 2; reasons.push('BB Lower Band Break'); }
+  else if (bbUpper && price >= bbUpper) { score -= 2; bearReasons.push('BB Upper Band Break'); }
+  else if (bbMid && price > bbMid)      { score += 1; reasons.push('Above BB Midline'); }
+  else if (bbMid && price < bbMid)      { score -= 1; bearReasons.push('Below BB Midline'); }
+
+  // ── 이동평균 ──
+  if (ma20Val && ma50Val) {
+    if (price > ma20Val && price > ma50Val) { score += 1; reasons.push('Above MA20&MA50'); }
+    else if (price < ma20Val && price < ma50Val) { score -= 1; bearReasons.push('Below MA20&MA50'); }
+    if (ma20Val > ma50Val) { score += 1; reasons.push('MA20>MA50 Uptrend'); }
+    else { score -= 1; bearReasons.push('MA20<MA50 Downtrend'); }
+  }
+  if (ma200Val) {
+    if (price > ma200Val) { score += 1; reasons.push('Above MA200 (Long-term Uptrend)'); }
+    else { score -= 1; bearReasons.push('Below MA200 (Long-term Downtrend)'); }
+  }
+
+  // ── 거래량 ──
+  if (volMAVal && volNow > volMAVal * 1.5) {
+    if (score > 0) { score += 1; reasons.push('Volume Surge (Trend Confirmed)'); }
+    else { score -= 1; bearReasons.push('Volume Surge (Bearish Pressure)'); }
+  }
+
+  // ── ADX (추세 강도) ──
+  let adxBoost = 1.0;
+  if (adxVal !== null && adxVal !== undefined) {
+    if (adxVal < 20) {
+      // 횡보장 — 점수 40% 감쇄
+      adxBoost = 0.6;
+      bearReasons.push('ADX ' + adxVal.toFixed(0) + ' (Ranging, Signal Weakened)');
+    } else if (adxVal >= 25) {
+      score += (score > 0 ? 1 : score < 0 ? -1 : 0);
+      reasons.push('ADX ' + adxVal.toFixed(0) + ' (Strong Trend)');
+    }
+  }
+
+  // ── 스토캐스틱 RSI ──
+  if (stochVal !== null && stochVal !== undefined) {
+    if (stochVal < 20)      { score += 1; reasons.push('StochRSI 과SELL'); }
+    else if (stochVal > 80) { score -= 1; bearReasons.push('StochRSI 과BUY'); }
+  }
+
+  // ── OBV ──
+  if (obvNow !== undefined && obvPrev !== undefined) {
+    if (obvNow > obvPrev * 1.05) { score += 1; reasons.push('OBV 상승(BUY세 증가)'); }
+    else if (obvNow < obvPrev * 0.95) { score -= 1; bearReasons.push('OBV 하락(SELL세 증가)'); }
+  }
+
+  // ── Candle Pattern ──
+  if (candle.score !== 0) {
+    score += candle.score;
+    if (candle.score > 0) reasons.push('Candle Pattern: ' + candle.name);
+    else bearReasons.push('Candle Pattern: ' + candle.name);
+  }
+
+  // ── Fibonacci ──
+  let fibLevel = null, fibNearLevel = null;
+  if (fib) {
+    const lvls = Object.entries(fib.levels);
+    let minDist = Infinity;
+    lvls.forEach(([pct, val]) => {
+      const dist = Math.abs(price - val) / price;
+      if (dist < minDist) { minDist = dist; fibNearLevel = pct; fibLevel = val; }
+    });
+    if (minDist < 0.005) { // 0.5% 이내면 레벨 근처
+      if (fibNearLevel === '61.8' || fibNearLevel === '50') {
+        score += (fib.trend==='up' ? 2 : -2);
+        if (fib.trend==='up') reasons.push('Fib ' + fibNearLevel + '% 지지 근처');
+        else bearReasons.push('Fib ' + fibNearLevel + '% 저항 근처');
+      } else if (fibNearLevel === '38.2' || fibNearLevel === '23.6') {
+        score += (fib.trend==='up' ? 1 : -1);
+        if (fib.trend==='up') reasons.push('Fib ' + fibNearLevel + '% 근처');
+        else bearReasons.push('Fib ' + fibNearLevel + '% 근처');
+      }
+    }
+  }
+
+  // ── POC (거래량 프로파일) ──
+  if (poc) {
+    const pocDist = Math.abs(price - poc) / price;
+    if (pocDist < 0.003) {
+      // POC 바로 위 or 아래
+      if (price >= poc) { score += 1; reasons.push('Above POC Support'); }
+      else { score -= 1; bearReasons.push('Below POC Resistance'); }
+    } else if (price > poc) { score += 1; reasons.push('Above POC (Buy Dominant)'); }
+    else { score -= 1; bearReasons.push('Below POC (Sell Dominant)'); }
+  }
+
+  // ADX 횡보장 감쇄 적용
+  score = Math.round(score * adxBoost);
+
+  // ── 포지션 결정 (최대 ±15점) ──
+  let position, posName, confidence, leverageRec;
+  const absScore = Math.abs(score);
+
+  if      (score >= 8)  { position='LONG';  posName='롱 (LONG)';  confidence=Math.min(55+absScore*3, 93); leverageRec='3x ~ 5x'; }
+  else if (score >= 5)  { position='LONG';  posName='롱 (LONG)';  confidence=Math.min(50+absScore*3, 83); leverageRec='2x ~ 3x'; }
+  else if (score >= 3)  { position='LONG';  posName='롱 (LONG)';  confidence=Math.min(50+absScore*2, 72); leverageRec='1x ~ 2x'; }
+  else if (score <= -8) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(55+absScore*3, 93); leverageRec='3x ~ 5x'; }
+  else if (score <= -5) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(50+absScore*3, 83); leverageRec='2x ~ 3x'; }
+  else if (score <= -3) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(50+absScore*2, 72); leverageRec='1x ~ 2x'; }
+  else                  { position='HOLD';  posName='관망 (HOLD)'; confidence=50; leverageRec='0x'; }
+
+  // ── 가격 계산 (Fibonacci + POC 반영) ──
+  const atr    = calcATR(kdata, 14);
+  const atrVal = atr[last] || price * 0.02;
+  const fmt    = v => '$' + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  let entryPrice, targetPrice, stopLoss, rrRatio;
+
+  if (position === 'LONG') {
+    // 진입가: Fibonacci 61.8% or POC 중 가까운 쪽, 없으면 Price
+    entryPrice = price;
+    if (fib && fib.levels['61.8'] && fib.levels['61.8'] < price * 1.005) {
+      entryPrice = fib.levels['61.8'];
+    } else if (poc && poc < price * 1.002) {
+      entryPrice = poc;
+    }
+    // 목표가: Fibonacci 0%(고점) 우선, 없으면 ATR×3
+    targetPrice = fib ? fib.levels['0'] : price + atrVal * 3;
+    if (targetPrice <= price) targetPrice = price + atrVal * 3;
+    // 손절가: Fibonacci 78.6% or POC 아래 ATR×1.5
+    stopLoss = fib ? fib.levels['78.6'] : price - atrVal * 1.5;
+    if (stopLoss >= price) stopLoss = price - atrVal * 1.5;
+  } else if (position === 'SHORT') {
+    entryPrice = price;
+    if (fib && fib.levels['38.2'] && fib.levels['38.2'] > price * 0.995) {
+      entryPrice = fib.levels['38.2'];
+    } else if (poc && poc > price * 0.998) {
+      entryPrice = poc;
+    }
+    targetPrice = fib ? fib.levels['100'] : price - atrVal * 3;
+    if (targetPrice >= price) targetPrice = price - atrVal * 3;
+    stopLoss = fib ? fib.levels['23.6'] : price + atrVal * 1.5;
+    if (stopLoss <= price) stopLoss = price + atrVal * 1.5;
+  } else {
+    entryPrice  = price;
+    targetPrice = null;
+    stopLoss    = null;
+  }
+
+  // R:R 계산
+  if (targetPrice && stopLoss) {
+    const reward = Math.abs(targetPrice - entryPrice);
+    const risk   = Math.abs(stopLoss - entryPrice);
+    const rr     = risk > 0 ? (reward/risk).toFixed(1) : '—';
+    rrRatio = '1 : ' + rr;
+  } else {
+    rrRatio = '—';
+  }
+
+  const mainReason = (position==='LONG' ? reasons : bearReasons).slice(0,3).join(' · ') || '지표 혼조';
+  const tfStratMap = { '1m':'스캘핑','5m':'단타','15m':'단타','1h':'스윙','4h':'스윙','1d':'포지션' };
+  const holdMap    = { '1m':'5~30분','5m':'30분~2시간','15m':'1~4시간','1h':'1~3일','4h':'3~7일','1d':'1~4주' };
+
+  return {
+    position, posName, confidence, leverageRec,
+    entryPrice:  fmt(entryPrice),
+    targetPrice: targetPrice ? fmt(targetPrice) : '—',
+    stopLoss:    stopLoss    ? fmt(stopLoss)    : '—',
+    rrRatio, mainReason, score,
+    indicators: {
+      rsi:     { val: rsiVal?.toFixed(1), sentiment: rsiVal<30?'bull':rsiVal>70?'bear':'neu', sub: rsiVal<30?'과SELL':rsiVal>70?'과BUY':'중립' },
+      macd:    { val: macdVal?.toFixed(2), sentiment: macdVal>macdSig?'bull':'bear', sub: macdVal>macdSig?'강세':'약세' },
+      bbPos:   { val: bbMid?((price-bbMid)/(bbUpper-bbMid)*100).toFixed(0)+'%':'—', sentiment: price<bbLower?'bull':price>bbUpper?'bear':'neu', sub: price<bbLower?'Lower Break':price>bbUpper?'Upper Break':'Mid Zone' },
+      ma:      { val: ma20Val?fmt(ma20Val):'—', sentiment: price>ma20Val?'bull':'bear', sub: price>ma20Val?'상회':'하회' },
+      macd200: { val: ma200Val?fmt(ma200Val):'—', sentiment: price>ma200Val?'bull':'bear', sub: price>ma200Val?'장기 상승':'장기 하락' },
+      vol:     { val: volMAVal?(volNow/volMAVal*100).toFixed(0)+'%':'—', sentiment: volNow>volMAVal*1.3?'bull':volNow<volMAVal*0.7?'bear':'neu', sub: volNow>volMAVal*1.3?'평균 이상':'평균 이하' },
+      score:   { val: (score>0?'+':'')+score, sentiment: score>0?'bull':score<0?'bear':'neu', sub: 'Total Score(/15)' },
+      adx:     { val: adxVal?adxVal.toFixed(0):'—', sentiment: adxVal>=25?'bull':adxVal<20?'bear':'neu', sub: adxVal>=25?'강한 추세':adxVal<20?'횡보장':'약한 추세' },
+      stochRsi:{ val: stochVal?stochVal.toFixed(0):'—', sentiment: stochVal<20?'bull':stochVal>80?'bear':'neu', sub: stochVal<20?'과SELL':stochVal>80?'과BUY':'중립' },
+      fib:     { val: fibNearLevel?fibNearLevel+'%':'—', sentiment: fib&&fib.trend==='up'?'bull':'bear', sub: fibNearLevel?'피보 근처':'레벨 없음' },
+      poc:     { val: poc?fmt(poc):'—', sentiment: poc&&price>poc?'bull':'bear', sub: poc&&price>poc?'POC 상회':'POC 하회' },
+      candle:  { val: candle.name, sentiment: candle.signal, sub: candle.score>0?'BUY신호':candle.score<0?'SELL신호':'중립' },
+    },
+    tfStrategy:    tfStratMap[tf] || '단타',
+    holdingPeriod: holdMap[tf] || '—',
+    analysis: buildAnalysis(position, reasons, bearReasons, rsiVal, macdVal, macdSig, price, bbLower, bbUpper, ma20Val, ma50Val),
+    strategy: buildStrategy(position, fmt(entryPrice), targetPrice?fmt(targetPrice):'—', stopLoss?fmt(stopLoss):'—'),
+    riskWarn: buildRisk(position, rsiVal, score),
+  };
+}
+
+function calcATR(kdata, period=14) {
+  const tr = kdata.map((k,i) => {
+    if (i===0) return k.h-k.l;
+    const prevC = kdata[i-1].c;
+    return Math.max(k.h-k.l, Math.abs(k.h-prevC), Math.abs(k.l-prevC));
+  });
+  return calcSMA(tr, period);
+}
+
+function buildAnalysis(pos, bull, bear, rsi, macdV, macdS, price, bbL, bbU, ma20, ma50) {
+  const bullStr = bull.slice(0,3).join(', ');
+  const bearStr = bear.slice(0,3).join(', ');
+  if (pos==='LONG') return `현재 ${bullStr} 신호가 감지되어 BUY 우위 상황입니다. RSI ${rsi?.toFixed(1)}으로 ${rsi<30?'과SELL권에서 반등 가능성이 높습니다':'상승 모멘텀이 유지되고 있습니다'}. MACD는 ${macdV>macdS?'시그널선 위에서 강세 흐름을 나타냅니다':'크로스 이후 상승 전환 신호입니다'}. ${bearStr?'단, '+bearStr+' 리스크도 존재하므로 Stop Loss을 반드시 설정하세요.':'지표 종합 시 BUY 진입이 유리한 구간입니다.'}`;
+  if (pos==='SHORT') return `현재 ${bearStr} 신호가 감지되어 SELL 우위 상황입니다. RSI ${rsi?.toFixed(1)}으로 ${rsi>70?'과BUY권에서 조정 가능성이 높습니다':'하락 모멘텀이 강화되고 있습니다'}. MACD는 ${macdV<macdS?'시그널선 아래에서 약세 흐름입니다':'데드크로스 이후 하락 전환 신호입니다'}. ${bullStr?'단, '+bullStr+' 반등 신호도 있으니 Stop Loss을 철저히 지키세요.':'지표 종합 시 숏 진입이 유리한 구간입니다.'}`;
+  return `Mixed BUY/SELL signals with no clear direction. Bullish: ${bullStr||'None'}. 약세 신호: ${bearStr||'None'}. 변동성이 낮고 방향이 불분명하므로 추가 캔들을 관찰 후 진입을 결정하는 것이 좋습니다.`;
+}
+
+function buildStrategy(pos, entry, target, stop) {
+  if (pos==='LONG') return `Consider scaling in near ${entry}. Take 50% profit at ${target}, then trail the rest. Exit immediately if price breaks ${stop} to limit losses.`;
+  if (pos==='SHORT') return `Enter SHORT near ${entry} targeting ${target}. Set stop loss at ${stop}, and close half the position when price reaches midway to reduce risk.`;
+  return `현재는 관망을 권장합니다. 명확한 돌파 or 이탈 캔들이 나올 때까지 포지션을 보유하지 말고 기다리세요. RSI 30 이하 or 70 이상, MACD 크로스 발생 시 진입을 검토하세요.`;
+}
+
+function buildRisk(pos, rsi, score) {
+  const risks = [];
+  if (Math.abs(score)<4) risks.push('신호 강도가 약하여 변동성에 취약합니다');
+  if (rsi>65 && pos==='LONG') risks.push('RSI 고점권으로 단기 조정 가능성 있음');
+  if (rsi<35 && pos==='SHORT') risks.push('RSI 저점권으로 단기 반등 가능성 있음');
+  risks.push('Always respect your stop loss when using leverage.');
+  risks.push('This signal is for reference only. All investment decisions are your own responsibility.');
+  return risks.slice(0,3).join('. ') + '.';
+}
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function renderAnalysis(sig, ticker) {
+  const posCls = sig.position==='LONG'?'long':sig.position==='SHORT'?'short':'hold';
+
+  const entryLabel = 'Suggested Entry';
+  const html = `
+    <!-- Hero -->
+    <div class="sig-hero ${posCls}">
+      <div class="sig-hero-top">
+        <div class="sig-left">
+          <div><span class="sig-badge ${posCls}">${sig.position}</span></div>
+          <div class="sig-name ${posCls}">${sig.posName}</div>
+          <div class="sig-reason">${sig.mainReason}</div>
+        </div>
+        <div class="sig-right">
+          <div class="sig-lev-lbl">Suggested Leverage</div>
+          <div class="sig-lev-val">${sig.leverageRec}</div>
+        </div>
+      </div>
+      <div class="sig-hero-bottom">
+        <div style="flex-shrink:0">
+          <div class="sig-entry-lbl">Suggested Entry</div>
+          <div class="sig-entry-val ${posCls}" style="${isTrial?'filter:blur(6px);user-select:none;':''}">${isTrial?'$00,000.00':sig.entryPrice}</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.08);height:40px;flex-shrink:0"></div>
+        <div class="sig-conf-wrap">
+          <div class="sig-conf-lbl">
+            <span>Confidence</span>
+            <span style="font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text)">${sig.confidence}%</span>
+          </div>
+          <div class="sig-conf-bar">
+            <div class="sig-conf-fill ${posCls}" style="width:${sig.confidence}%"></div>
+          </div>
+        </div>
+        <div style="flex-shrink:0;text-align:right">
+          <div class="sig-entry-lbl">R:R Ratio</div>
+          <div style="font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--long)">${sig.rrRatio}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeframe -->
+    <div class="sum-row" style="margin-bottom:10px">
+      <div class="sum-card"><div class="sum-lbl">Timeframe</div><div class="sum-val neu" style="font-size:17px">${document.getElementById('tfSelect').options[document.getElementById('tfSelect').selectedIndex].text}</div></div>
+      <div class="sum-card"><div class="sum-lbl">Strategy Type</div><div class="sum-val neu" style="font-size:17px">${sig.tfStrategy}</div></div>
+      <div class="sum-card"><div class="sum-lbl">Holding Period</div><div class="sum-val neu" style="font-size:17px">${sig.holdingPeriod}</div></div>
+    </div>
+
+    <!-- Prices (위로 올림) -->
+    <div class="sec-label">Price Levels</div>
+    <div class="price-row">
+      <div class="price-card">
+        <div class="price-tag ${sig.position==='LONG'?'buy':sig.position==='SHORT'?'sell':'stop'}">${entryLabel}</div>
+        <div class="price-val" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
+          ${isTrial ? '$00,000.00' : sig.entryPrice}
+        </div>
+        <div class="price-note">Immediate entry at current market price</div>
+      </div>
+      <div class="price-card">
+        <div class="price-tag sell">Take Profit</div>
+        <div class="price-val" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
+          ${isTrial ? '$00,000.00' : sig.targetPrice}
+        </div>
+        <div class="price-note">Take profit target (ATR x3)</div>
+      </div>
+      <div class="price-card">
+        <div class="price-tag stop">Stop Loss</div>
+        <div class="price-val" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
+          ${isTrial ? '$00,000.00' : sig.stopLoss}
+        </div>
+        <div class="price-note">Stop loss level (ATR x1.5)</div>
+      </div>
+    </div>
+
+    <!-- Summary (아래로 내림) -->
+    <div class="sec-label">Signal Summary</div>
+    <div class="sum-row">
+      <div class="sum-card">
+        <div class="sum-lbl">Signal</div>
+        <div class="sum-val ${sig.position==='LONG'?'pos':sig.position==='SHORT'?'neg':'neu'}" style="font-size:22px">
+          ${sig.position==='LONG'?'BUY':sig.position==='SHORT'?'SELL':'HOLD'}
+          <span style="font-size:14px;color:var(--text2);margin-left:6px">[${sig.confidence}%]</span>
+        </div>
+        <div class="sum-sub">Total Score: ${sig.score>0?'+':''}${sig.score}</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-lbl">RSI (14)</div>
+        <div class="sum-val ${sig.indicators.rsi.sentiment==='bull'?'pos':sig.indicators.rsi.sentiment==='bear'?'neg':'neu'}">${sig.indicators.rsi.val}</div>
+        <div class="sum-sub">${sig.indicators.rsi.sub}</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-lbl">MACD</div>
+        <div class="sum-val ${sig.indicators.macd.sentiment==='bull'?'pos':'neg'}">${sig.indicators.macd.val}</div>
+        <div class="sum-sub">${sig.indicators.macd.sub}</div>
+      </div>
+    </div>
+
+    <!-- Indicators -->
+    <div class="sec-label">Technical Indicators</div>
+    <div class="${isTrial?'trial-blur':''}" style="${isTrial?'border-radius:var(--r);overflow:hidden;':''}">
+    <div class="ind-grid">
+      ${Object.entries({
+        'RSI 14': sig.indicators.rsi,
+        'MACD': sig.indicators.macd,
+        'BB Position': sig.indicators.bbPos,
+        'MA 20': sig.indicators.ma,
+        'MA 200': sig.indicators.macd200,
+        'Volume Ratio': sig.indicators.vol,
+        'Total Score': sig.indicators.score,
+        'ADX': sig.indicators.adx,
+        'StochRSI': sig.indicators.stochRsi,
+        'Fibonacci': sig.indicators.fib,
+        'POC': sig.indicators.poc,
+        'Candle Pattern': sig.indicators.candle,
+      }).map(([name, ind]) => `
+        <div class="ind-card">
+          <div class="ind-name">${name}</div>
+          <div class="ind-row">
+            <div class="ind-dot ${ind.sentiment}"></div>
+            <div class="ind-val ${ind.sentiment}">${ind.val||'—'}</div>
+          </div>
+          <div class="ind-sub">${ind.sub||''}</div>
+        </div>`).join('')}
+    </div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="sec-label">AI Analysis</div>
+    <div class="${isTrial?'trial-blur':''}" style="${isTrial?'border-radius:var(--r);':''}" >
+    <div class="ana-card">
+      <div class="ana-head"><div class="ana-dot" style="background:var(--blue)"></div>Analysis Summary</div>
+      <div class="ana-body">${sig.analysis}</div>
+    </div>
+    <div class="ana-card">
+      <div class="ana-head"><div class="ana-dot" style="background:var(--long)"></div>Entry Strategy</div>
+      <div class="ana-body">${sig.strategy}</div>
+    </div>
+    <div class="ana-card">
+      <div class="ana-head"><div class="ana-dot" style="background:var(--short)"></div>Risk Warning</div>
+      <div class="ana-body">${sig.riskWarn}</div>
+    </div>
+
+    </div>
+    ${isTrial ? '<div style="text-align:center;margin:10px 0 6px"><button class="trial-lock-btn" onclick="showLicenseGate()">🔒 Purchase to unlock full analysis</button></div>' : ''}
+    <div class="disclaimer">※ This analysis is based on automated technical indicator calculations and should not be used as a basis for actual investment decisions. Cryptocurrency trading involves risk of loss, and all investment decisions are your own responsibility.</div>
+  `;
+
+  const trialBanner = isTrial ? `
+    <div class="trial-banner">
+      <div class="trial-banner-text">🔍 <span>Free Trial</span> — Entry price, target, stop loss, and full analysis available after purchase</div>
+      <button class="trial-banner-btn" onclick="showLicenseGate()">지금 Buy Now</button>
+    </div>` : '';
+  document.getElementById('analysisArea').innerHTML = trialBanner + html;
+}
+
+// ════════════════════════════════════════
+// MAIN FLOW
+// ════════════════════════════════════════
+async function runAnalysis() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true; btn.textContent = 'Analyzing...';
+  document.getElementById('analysisArea').innerHTML = '<div class="loading-state"><div class="spin"></div><div>Calculating indicators...</div></div>';
+
+  try {
+    const [data, ticker] = await Promise.all([
+      fetchKlines(symbol, tf, 300),
+      fetchTicker(symbol)
+    ]);
+    klines = data;
+
+    // 티커 업데이트
+    const price = +ticker.lastPrice;
+    const pct = +ticker.priceChangePercent;
+    document.getElementById('tkPrice').textContent = '$' + price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const chEl = document.getElementById('tkChange');
+    chEl.textContent = (pct>=0?'+':'')+pct.toFixed(2)+'%';
+    chEl.className = 'ticker-val mono '+(pct>=0?'pos':'neg');
+    document.getElementById('tkHigh').textContent = '$' + (+ticker.highPrice).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('tkLow').textContent = '$' + (+ticker.lowPrice).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const vol = +ticker.quoteVolume;
+    document.getElementById('tkVol').textContent = vol>1e9?(vol/1e9).toFixed(2)+'B':(vol/1e6).toFixed(0)+'M';
+
+    const sig = generateSignal(data);
+    renderAnalysis(sig, ticker);
+
+  } catch(e) {
+    const isLocal = location.protocol === 'file:';
+    const msg = isLocal
+      ? '⚠️ Binance API is blocked in local file mode.<br><br>👉 Upload to a server and access via <b>https://</b> for it to work properly!'
+      : '❌ Data load failed: ' + e.message;
+    document.getElementById('analysisArea').innerHTML = `<div class="loading-state" style="color:var(--text2);line-height:2">${msg}</div>`;
+  }
+  btn.disabled = false; btn.textContent = '🔄 Refresh Analysis';
+}
+
+function onSymbolChange() {
+  symbol = document.getElementById('symSelect').value;
+  connectTickerWS(symbol);
+  runAnalysis();
+}
+function onTfChange() {
+  tf = document.getElementById('tfSelect').value;
+  runAnalysis();
+}
+
+// Auto refresh every 60 seconds
+let autoTimer = null;
+function startAutoRefresh() {
+  if (autoTimer) clearInterval(autoTimer);
+  autoTimer = setInterval(runAnalysis, 60000);
+}
+
+// ════════════════════════════════════════
+// CHART
+// ════════════════════════════════════════
+let chart = null, candleSeries = null, chartWs = null;
+let chartSymbol = 'BTCUSDT', chartTf = '15m';
+let chartInited = false;
+
+async function initChart() {
+  // LightweightCharts 로드 확인
+  if (typeof LightweightCharts === 'undefined') {
+    document.getElementById('chartWsLbl').textContent = 'Loading library...';
+    await new Promise(r => setTimeout(r, 800));
+    if (typeof LightweightCharts === 'undefined') {
+      document.getElementById('chartWsLbl').textContent = 'Library load failed - please refresh';
+      return;
+    }
+  }
+
+  // 심볼/TF 신호탭과 동기화
+  chartSymbol = symbol;
+  chartTf = tf;
+  const csEl = document.getElementById('chartSymSelect');
+  const ctEl = document.getElementById('chartTfSelect');
+  if (csEl) csEl.value = chartSymbol;
+  if (ctEl) ctEl.value = chartTf;
+
+  const container = document.getElementById('chart-container');
+  if (!container) return;
+
+  if (!chartInited) {
+    chartInited = true;
+    try {
+      chart = LightweightCharts.createChart(container, {
+        width: container.clientWidth,
+        height: 440,
+        layout: { background:{color:'#161b27'}, textColor:'#8b95a7' },
+        grid: { vertLines:{color:'#252e42'}, horzLines:{color:'#252e42'} },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        rightPriceScale: { borderColor:'#252e42' },
+        timeScale: { borderColor:'#252e42', timeVisible:true, secondsVisible:false },
+        handleScroll: true,
+        handleScale: true,
+      });
+      candleSeries = chart.addCandlestickSeries({
+        upColor:'#06b66b', downColor:'#f04452',
+        borderUpColor:'#06b66b', borderDownColor:'#f04452',
+        wickUpColor:'#06b66b', wickDownColor:'#f04452',
+      });
+      window.addEventListener('resize', () => {
+        if (chart) chart.applyOptions({ width: container.clientWidth });
+      });
+    } catch(e) {
+      console.error('차트 생성 실패:', e);
+      document.getElementById('chartWsLbl').textContent = '차트 생성 실패: ' + e.message;
+      chartInited = false;
+      return;
+    }
+  }
+
+  await loadChartData();
+  connectChartWS();
+}
+
+async function loadChartData() {
+  if (!candleSeries) return;
+  const lbl = document.getElementById('chartWsLbl');
+  lbl.textContent = 'Loading chart data...';
+  try {
+    const url = `https://api.binance.com/api/v3/klines?symbol=${chartSymbol}&interval=${chartTf}&limit=500`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+    if (!Array.isArray(raw) || raw.length === 0) throw new Error('No data');
+    const candles = raw.map(d => ({
+      time: Math.floor(d[0] / 1000),
+      open:  parseFloat(d[1]),
+      high:  parseFloat(d[2]),
+      low:   parseFloat(d[3]),
+      close: parseFloat(d[4]),
+    }));
+    candleSeries.setData(candles);
+    chart.timeScale().fitContent();
+    lbl.textContent = `LIVE · ${chartSymbol} ${chartTf}`;
+  } catch(e) {
+    console.error('차트 데이터 로드 실패:', e);
+    lbl.textContent = 'Load failed: ' + e.message;
+  }
+}
+
+function connectChartWS() {
+  if (chartWs) { chartWs.close(); chartWs = null; }
+
+  const streamUrl = `wss://stream.binance.com:9443/ws/${chartSymbol.toLowerCase()}@kline_${chartTf}`;
+  chartWs = new WebSocket(streamUrl);
+
+  chartWs.onopen = () => {
+    document.getElementById('chartWsDot').className = 'ws-dot live';
+    document.getElementById('chartWsLbl').textContent = 'LIVE · ' + chartSymbol + ' ' + chartTf;
+  };
+  chartWs.onclose = () => {
+    document.getElementById('chartWsDot').className = 'ws-dot';
+    document.getElementById('chartWsLbl').textContent = 'Disconnected (reconnecting...)';
+    // 5초 후 자동 재연결
+    setTimeout(() => {
+      if (document.getElementById('panel-chart').classList.contains('active')) {
+        connectChartWS();
+      }
+    }, 5000);
+  };
+  chartWs.onerror = () => {
+    document.getElementById('chartWsLbl').textContent = 'Connection error';
+  };
+  chartWs.onmessage = e => {
+    try {
+      const msg = JSON.parse(e.data);
+      const k = msg.k;
+      if (!k || !candleSeries) return;
+      const candle = {
+        time:  Math.floor(parseInt(k.t) / 1000),
+        open:  parseFloat(k.o),
+        high:  parseFloat(k.h),
+        low:   parseFloat(k.l),
+        close: parseFloat(k.c),
+      };
+      candleSeries.update(candle);
+    } catch(err) { console.error('WS 업데이트 오류:', err); }
+  };
+}
+
+function onChartSymChange() {
+  chartSymbol = document.getElementById('chartSymSelect').value;
+  if (chartInited) { loadChartData(); connectChartWS(); }
+}
+function onChartTfChange() {
+  chartTf = document.getElementById('chartTfSelect').value;
+  if (chartInited) { loadChartData(); connectChartWS(); }
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+function init() {
+  connectTickerWS(symbol);
+  runAnalysis();
+  startAutoRefresh();
+}
+</script>
+</body>
+</html>
