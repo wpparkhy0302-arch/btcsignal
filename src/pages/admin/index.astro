@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BTC Signal AI - 관리자</title>
+  <style>
+    :root{
+      --bg:#050914;
+      --card:#101827;
+      --card2:#121d32;
+      --border:#1f2b45;
+      --border2:#24406b;
+      --text:#f8fafc;
+      --text2:#94a3b8;
+      --text3:#64748b;
+      --green:#10b981;
+      --blue:#3b82f6;
+      --red:#ff4d5a;
+      --yellow:#ffb020;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#040814 0%,#050914 100%);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 46px}
+    .topbar{
+      display:flex;justify-content:space-between;align-items:flex-start;
+      margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:18px
+    }
+    .brand{display:flex;gap:14px;align-items:flex-start}
+    .logo{
+      width:34px;height:34px;border-radius:9px;background:var(--green);
+      display:grid;place-items:center;font-weight:800;color:#fff
+    }
+    .title{font-size:18px;font-weight:800;line-height:1.2}
+    .sub{font-size:13px;color:var(--text2);margin-top:4px}
+    .admin-badge{
+      padding:6px 12px;border-radius:999px;border:1px solid #6b4b10;
+      color:#ffb020;background:rgba(255,176,32,.08);font-size:12px;font-weight:700
+    }
+    .panel{
+      background:linear-gradient(180deg,#111a2c,#0f1728);
+      border:1px solid var(--border);
+      border-radius:14px;padding:22px;margin-bottom:20px
+    }
+    .panel-title{
+      font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px
+    }
+    .panel-title .dot{width:9px;height:9px;border-radius:50%;background:var(--green)}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+    .stat-card{
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--border);
+      border-radius:12px;padding:18px
+    }
+    .stat-lbl{font-size:12px;color:var(--text2);margin-bottom:8px}
+    .stat-val{font-size:26px;font-weight:800}
+    .blue{color:var(--blue)} .green{color:var(--green)} .red{color:var(--red)} .yellow{color:var(--yellow)}
+    .sec-label{font-size:13px;font-weight:800;color:var(--text2);margin:22px 0 12px}
+    .row-2{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+    .gen-card{
+      background:linear-gradient(180deg,#111a2c,#0f1728);
+      border:1px solid var(--border);
+      border-radius:14px;padding:20px
+    }
+    .gen-row{display:grid;grid-template-columns:1.3fr 1.2fr auto;gap:10px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field label{font-size:12px;color:var(--text2);font-weight:700}
+    input,select{
+      width:100%;height:42px;border-radius:10px;border:1px solid var(--border2);
+      background:#0a1020;color:var(--text);padding:0 14px;font-size:15px;outline:none
+    }
+    input::placeholder{color:#5e6d86}
+    .btn-save,.btn-gen,.btn-copy,.btn-export,.btn-revoke,.btn-add{
+      height:42px;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer
+    }
+    .btn-save,.btn-gen{background:var(--green);color:#fff;padding:0 22px}
+    .btn-copy{
+      background:#17305a;color:#60a5fa;border:1px solid #28508d;padding:0 22px
+    }
+    .btn-export{
+      background:#091a34;color:#4ea0ff;border:1px solid #0f4ea6;padding:0 16px
+    }
+    .btn-add{
+      background:#0f3a2c;color:#7ef0b9;border:1px solid #1d7f5a;padding:0 18px
+    }
+    .btn-revoke{
+      background:transparent;border:1px solid var(--border2);color:#cbd5e1;padding:0 10px;height:34px
+    }
+    .btn-revoke.revoked{color:#ff8d96;border-color:#7d2d36}
+    .btn-revoke.active{color:#7ef0b9;border-color:#206d55}
+    .search-row{
+      display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:10px
+    }
+    .search-input{height:40px}
+    .table-wrap{
+      overflow:hidden;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.02)
+    }
+    .table-head,.table-row{
+      display:grid;
+      grid-template-columns:2.1fr 1fr .9fr .9fr .95fr .7fr 1fr;
+      gap:10px;align-items:center
+    }
+    .table-head{
+      padding:14px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);font-weight:800
+    }
+    .table-row{
+      padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:14px
+    }
+    .table-row:last-child{border-bottom:none}
+    .table-row.revoked{opacity:.72}
+    .td{min-width:0}
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:13px;word-break:break-all
+    }
+    .status-badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:54px;height:28px;border-radius:999px;font-size:12px;font-weight:800
+    }
+    .status-badge.active{background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
+    .status-badge.revoked{background:rgba(255,77,90,.10);color:#ff9aa3;border:1px solid rgba(255,77,90,.25)}
+    .status-badge.expired{background:rgba(255,176,32,.10);color:#ffd37a;border:1px solid rgba(255,176,32,.25)}
+    .empty-state{padding:46px 20px;text-align:center;color:var(--text3)}
+    .gen-result{
+      display:none;margin-top:14px;padding:14px;border-radius:12px;
+      border:1px solid #1e6d53;background:rgba(16,185,129,.08);
+      align-items:center;justify-content:space-between;gap:12px
+    }
+    .gen-result.show{display:flex}
+    .gen-key-val{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:18px;font-weight:800;color:#8af6c4;word-break:break-all
+    }
+    .gen-key-meta{margin-top:6px;color:#9fb4c7;font-size:13px}
+    .toast{
+      position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+      min-width:220px;max-width:90vw;padding:14px 18px;border-radius:12px;
+      background:#0b1325;border:1px solid var(--border2);color:#fff;
+      opacity:0;pointer-events:none;transition:all .25s ease;z-index:9999;
+      box-shadow:0 18px 40px rgba(0,0,0,.35);text-align:center;font-weight:700
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.green{border-color:#1c7f5b}
+    .toast.red{border-color:#7d2d36}
+    .helper{font-size:12px;color:var(--text2);margin-top:8px}
+    @media (max-width: 900px){
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .gen-row,.row-2,.search-row{grid-template-columns:1fr}
+      .table-head{display:none}
+      .table-row{grid-template-columns:1fr;gap:8px;padding:16px}
+      .gen-result.show{display:block}
+      .btn-add{margin-top:12px;width:100%}
+    }
+  
+    .proof-panel{margin-top:22px}
+    .proof-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .proof-grid-head,.proof-grid-row{
+      display:grid;
+      grid-template-columns:1.2fr .9fr .9fr .8fr .55fr .65fr;
+      gap:8px;align-items:center
+    }
+    .proof-grid-head{
+      font-size:12px;color:var(--text2);font-weight:800;
+      padding:0 4px 10px
+    }
+    .proof-grid-row{
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:8px
+    }
+    .proof-small-input,.proof-small-select{
+      width:100%;height:38px;border-radius:9px;border:1px solid var(--border2);
+      background:#0a1020;color:var(--text);padding:0 10px;font-size:14px;outline:none
+    }
+    .proof-check{display:flex;align-items:center;justify-content:center}
+    .proof-check input{width:18px;height:18px}
+    .proof-remove{
+      height:38px;border-radius:9px;border:1px solid #7d2d36;background:transparent;color:#ff9aa3;
+      font-weight:800;cursor:pointer
+    }
+    .proof-phrase-wrap{margin-top:14px}
+    .proof-phrase-textarea{
+      width:100%;min-height:110px;border-radius:12px;border:1px solid var(--border2);
+      background:#0a1020;color:var(--text);padding:12px 14px;font-size:14px;outline:none;resize:vertical
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">₿</div>
+        <div>
+          <div class="title">BTC Signal AI — 관리자</div>
+          <div class="sub">라이선스 키 발급 및 구독자 관리</div>
+        </div>
+      </div>
+      <div class="admin-badge">ADMIN</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> 랜딩 페이지 통계 관리</div>
+      <div class="row-2">
+        <div class="field">
+          <label>누적 구매자 수</label>
+          <input id="buyersInput" type="number" placeholder="예: 127">
+        </div>
+        <div class="field">
+          <label>재구독률 (%)</label>
+          <input id="resubInput" type="number" placeholder="예: 96">
+        </div>
+        <button class="btn-save" onclick="saveLandingStats()">저장</button>
+      </div>
+      <div class="helper" id="statsMsg">숫자를 입력해 주세요.</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-lbl">전체 발급 키</div>
+        <div class="stat-val blue" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">활성 구독자</div>
+        <div class="stat-val green" id="statActive">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">취소 / 정지</div>
+        <div class="stat-val red" id="statRevoked">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">만료 예정 (30일)</div>
+        <div class="stat-val yellow" id="statSoon">0</div>
+      </div>
+    </div>
+
+    <div class="sec-label">새 라이선스 키 발급</div>
+    <div class="gen-card">
+      <div class="gen-row">
+        <div class="field">
+          <label>구매자 이름 / 닉네임</label>
+          <input type="text" id="genName" placeholder="예) 홍길동">
+        </div>
+
+        <div class="field">
+          <label>구독 기간</label>
+          <select id="genPeriod">
+            <option value="1">1개월</option>
+            <option value="3">3개월</option>
+            <option value="6">6개월</option>
+            <option value="12" selected>12개월</option>
+            <option value="24">24개월 (2년)</option>
+            <option value="120">영구</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>최대 기기 수</label>
+          <select id="genMaxDev">
+            <option value="1">1대</option>
+            <option value="2">2대</option>
+            <option value="3">3대</option>
+            <option value="99">무제한</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gen-row" style="margin-top:10px;grid-template-columns:auto auto;">
+        <button class="btn-gen" id="btnGen" onclick="generateKey()">키 발급</button>
+        <button class="btn-copy" onclick="copyLastKey()">복사</button>
+      </div>
+
+      <div class="gen-result" id="genResult">
+        <div>
+          <div class="gen-key-val" id="genKeyVal"></div>
+          <div class="gen-key-meta" id="genKeyMeta"></div>
+        </div>
+        <button class="btn-add" onclick="refreshTable()">목록 새로고침</button>
+      </div>
+    </div>
+
+
+    <div class="sec-label">실시간 구매 현황 관리</div>
+    <div class="panel proof-panel">
+      <div class="panel-title"><span class="dot"></span> 랜딩 페이지 구매자 목록</div>
+      <div class="helper">여기서 랜딩 페이지의 실시간 구매 목록과 작은 팝업 문구를 직접 수정할 수 있습니다.</div>
+
+      <div class="proof-toolbar" style="margin-top:14px">
+        <button class="btn-save" type="button" onclick="addProofRow()">항목 추가</button>
+        <button class="btn-copy" type="button" onclick="saveProofData()">목록 저장</button>
+      </div>
+
+      <div class="proof-grid-head">
+        <span>이름 마스킹</span>
+        <span>플랜</span>
+        <span>가격</span>
+        <span>색상</span>
+        <span>표시</span>
+        <span></span>
+      </div>
+      <div id="proofRows"></div>
+
+      <div class="proof-phrase-wrap">
+        <label style="display:block;font-size:12px;color:var(--text2);font-weight:700;margin-bottom:8px">토스트 문구 (한 줄에 하나씩)</label>
+        <textarea id="toastPhrases" class="proof-phrase-textarea" placeholder="방금 합류하셨어요&#10;조금 전 구매 완료&#10;최근 등록 완료"></textarea>
+        <div class="helper">작은 팝업 알림에서 번갈아 보여줄 문구입니다.</div>
+      </div>
+    </div>
+
+    <div class="sec-label">구독자 목록</div>
+    <div class="search-row">
+      <input class="search-input" id="searchInput" placeholder="이름 또는 키로 검색..." oninput="renderTable()">
+      <button class="btn-export" onclick="exportCSV()">CSV 내보내기</button>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-head">
+        <span>라이선스 키</span>
+        <span>구매자</span>
+        <span>발급일</span>
+        <span>만료일</span>
+        <span>마지막 사용</span>
+        <span>상태</span>
+        <span></span>
+      </div>
+      <div id="tableBody">
+        <div class="empty-state">발급된 키가 없습니다. 위에서 새 키를 발급해 주세요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1';
+
+    let ADMIN_TOKEN = localStorage.getItem('btcai_admin_token') || '';
+    if (!ADMIN_TOKEN) {
+      ADMIN_TOKEN = prompt('관리자 비밀번호를 입력하세요:') || '';
+      if (ADMIN_TOKEN) localStorage.setItem('btcai_admin_token', ADMIN_TOKEN);
+    }
+
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
+    }
+
+    function defaultProofItems() {
+      return [
+        { name:'ko***27', plan:'3개월', price:'79,000원', color:'green', enabled:true },
+        { name:'bit***91', plan:'12개월', price:'249,000원', color:'blue', enabled:true },
+        { name:'trd***55', plan:'1개월', price:'29,900원', color:'green', enabled:true },
+        { name:'moon***k', plan:'3개월', price:'79,000원', color:'green', enabled:true },
+        { name:'jin***42', plan:'12개월', price:'249,000원', color:'blue', enabled:true },
+        { name:'won***78', plan:'1개월', price:'29,900원', color:'green', enabled:true },
+        { name:'sol***33', plan:'3개월', price:'79,000원', color:'green', enabled:true }
+      ];
+    }
+
+    function proofRowTemplate(item = {}) {
+      const row = document.createElement('div');
+      row.className = 'proof-grid-row';
+      row.innerHTML = `
+        <input class="proof-small-input proof-name" placeholder="예: ko***27" value="${escapeHtml(item.name || '')}">
+        <select class="proof-small-select proof-plan">
+          <option value="1개월" ${item.plan === '1개월' ? 'selected' : ''}>1개월</option>
+          <option value="3개월" ${item.plan === '3개월' ? 'selected' : ''}>3개월</option>
+          <option value="12개월" ${item.plan === '12개월' ? 'selected' : ''}>12개월</option>
+        </select>
+        <input class="proof-small-input proof-price" placeholder="예: 79,000원" value="${escapeHtml(item.price || '')}">
+        <select class="proof-small-select proof-color">
+          <option value="green" ${item.color === 'green' ? 'selected' : ''}>초록</option>
+          <option value="blue" ${item.color === 'blue' ? 'selected' : ''}>파랑</option>
+        </select>
+        <label class="proof-check"><input type="checkbox" class="proof-enabled" ${item.enabled !== false ? 'checked' : ''}></label>
+        <button type="button" class="proof-remove">삭제</button>
+      `;
+      row.querySelector('.proof-remove').addEventListener('click', () => row.remove());
+      return row;
+    }
+
+    function addProofRow(item = {}) {
+      const box = document.getElementById('proofRows');
+      box.appendChild(proofRowTemplate(item));
+    }
+
+    function collectProofRows() {
+      const rows = Array.from(document.querySelectorAll('#proofRows .proof-grid-row'));
+      return rows.map(row => ({
+        name: row.querySelector('.proof-name').value.trim(),
+        plan: row.querySelector('.proof-plan').value.trim(),
+        price: row.querySelector('.proof-price').value.trim(),
+        color: row.querySelector('.proof-color').value.trim() || 'green',
+        enabled: row.querySelector('.proof-enabled').checked
+      })).filter(item => item.name && item.plan && item.price);
+    }
+
+    async function loadProofData() {
+      try {
+        const res = await fetch(API + '/proof-data?_=' + Date.now(), {
+          headers: { 'Accept': 'application/json' },
+          cache: 'no-store'
+        });
+        const data = await res.json();
+
+        const items = Array.isArray(data.items) && data.items.length ? data.items : defaultProofItems();
+        const phrases = Array.isArray(data.toast_phrases) && data.toast_phrases.length
+          ? data.toast_phrases
+          : ['방금 합류하셨어요', '조금 전 구매 완료', '최근 등록 완료', '지금 막 시작하셨어요'];
+
+        const box = document.getElementById('proofRows');
+        box.innerHTML = '';
+        items.forEach(item => addProofRow(item));
+        document.getElementById('toastPhrases').value = phrases.join('\n');
+      } catch (e) {
+        const box = document.getElementById('proofRows');
+        box.innerHTML = '';
+        defaultProofItems().forEach(item => addProofRow(item));
+        document.getElementById('toastPhrases').value = ['방금 합류하셨어요', '조금 전 구매 완료', '최근 등록 완료', '지금 막 시작하셨어요'].join('\n');
+      }
+    }
+
+    async function saveProofData() {
+      const items = collectProofRows();
+      const toast_phrases = document.getElementById('toastPhrases').value
+        .split('\n')
+        .map(v => v.trim())
+        .filter(Boolean);
+
+      if (!items.length) {
+        showToast('실시간 구매 항목을 한 개 이상 입력해 주세요.', 'red');
+        return;
+      }
+
+      try {
+        const res = await fetch(API + '/proof-data/update', {
+          method: 'POST',
+          headers: hdrs(),
+          body: JSON.stringify({ items, toast_phrases })
+        });
+
+        const data = await res.json();
+
+        if (data.ok || data.success) {
+          showToast('실시간 구매 목록 저장 완료', 'green');
+        } else {
+          showToast(data.msg || '저장 실패', 'red');
+        }
+      } catch (e) {
+        showToast('서버 연결 실패', 'red');
+      }
+    }
+
+
+    let allKeys = [];
+
+    function hdrs() {
+      return {
+        'Content-Type': 'application/json',
+        'X-Admin-Token': ADMIN_TOKEN
+      };
+    }
+
+    function showToast(msg, type='green') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast ' + type + ' show';
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => {
+        el.className = 'toast';
+      }, 2200);
+    }
+
+    function fmtDate(value) {
+      if (!value) return '-';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return '-';
+      return d.toLocaleDateString('ko-KR');
+    }
+
+    async function loadLandingStats() {
+      try {
+        const res = await fetch(API + '/stats');
+        const data = await res.json();
+        document.getElementById('buyersInput').value = data.buyers ?? '';
+        document.getElementById('resubInput').value = data.resub_rate ?? '';
+      } catch (e) {
+        document.getElementById('statsMsg').textContent = '불러오기 실패';
+      }
+    }
+
+    async function saveLandingStats() {
+      const buyers = parseInt(document.getElementById('buyersInput').value || '0', 10);
+      const resub_rate = parseInt(document.getElementById('resubInput').value || '0', 10);
+
+      try {
+        const res = await fetch(API + '/stats/update', {
+          method: 'POST',
+          headers: hdrs(),
+          body: JSON.stringify({ buyers, resub_rate })
+        });
+
+        const data = await res.json();
+
+        if (data.ok || data.success) {
+          document.getElementById('statsMsg').textContent = '저장되었습니다.';
+          showToast('통계 저장 완료', 'green');
+        } else {
+          document.getElementById('statsMsg').textContent = data.msg || '저장 실패';
+          showToast(data.msg || '저장 실패', 'red');
+        }
+      } catch (e) {
+        document.getElementById('statsMsg').textContent = '저장 실패';
+        showToast('서버 연결 실패', 'red');
+      }
+    }
+
+    async function loadKeys() {
+      try {
+        const res = await fetch(API + '/list?_=' + Date.now(), {
+          headers: {
+            ...hdrs(),
+            'Cache-Control': 'no-cache'
+          },
+          cache: 'no-store'
+        });
+        if (res.status === 401 || res.status === 403) {
+          showToast('비밀번호 오류', 'red');
+          return [];
+        }
+        const data = await res.json();
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.keys)) return data.keys;
+        return [];
+      } catch (e) {
+        showToast('목록 불러오기 실패', 'red');
+        return [];
+      }
+    }
+
+    async function generateKey() {
+      const name = document.getElementById('genName').value.trim();
+      if (!name) {
+        showToast('구매자 이름 입력', 'red');
+        return;
+      }
+
+      const months = parseInt(document.getElementById('genPeriod').value, 10);
+      const maxDevices = parseInt(document.getElementById('genMaxDev').value, 10);
+      const btn = document.getElementById('btnGen');
+
+      btn.disabled = true;
+      btn.textContent = '발급 중...';
+
+      try {
+        const res = await fetch(API + '/issue', {
+          method: 'POST',
+          headers: hdrs(),
+          body: JSON.stringify({
+            name: name,
+            buyer: name,
+            months: months,
+            max_devices: maxDevices
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.ok || data.success) {
+          document.getElementById('genKeyVal').textContent = data.key || '';
+          const expText = data.expires || fmtDate(data.expires_at);
+          const label = months >= 120 ? '영구' : months + '개월';
+          document.getElementById('genKeyMeta').textContent =
+            `${name} · ${label} · 최대 ${maxDevices}대 · 만료: ${expText}`;
+          document.getElementById('genResult').classList.add('show');
+          navigator.clipboard.writeText(data.key || '').catch(() => {});
+          showToast('발급 완료! 클립보드에 복사됐어요', 'green');
+          await refreshTable();
+        } else {
+          showToast(data.msg || '발급 실패', 'red');
+        }
+      } catch (e) {
+        showToast('서버 연결 실패', 'red');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '키 발급';
+      }
+    }
+
+    function copyLastKey() {
+      const key = document.getElementById('genKeyVal').textContent.trim();
+      if (!key) {
+        showToast('먼저 키를 발급해 주세요.', 'red');
+        return;
+      }
+      navigator.clipboard.writeText(key)
+        .then(() => showToast('복사됐어요!', 'green'))
+        .catch(() => showToast('복사 실패', 'red'));
+    }
+
+    async function toggleRevoke(id, currentStatus) {
+      const newStatus = currentStatus === 'active' ? 'revoked' : 'active';
+
+      try {
+        const res = await fetch(API + '/update', {
+          method: 'POST',
+          headers: hdrs(),
+          body: JSON.stringify({ id, status: newStatus })
+        });
+
+        const data = await res.json();
+
+        if (data.ok || data.success) {
+          showToast(newStatus === 'revoked' ? '정지됐습니다.' : '복원됐습니다.', newStatus === 'revoked' ? 'red' : 'green');
+          await refreshTable();
+        } else {
+          showToast(data.msg || '처리 실패', 'red');
+        }
+      } catch (e) {
+        showToast('서버 연결 실패', 'red');
+      }
+    }
+
+    async function deleteKey(id, name) {
+      if (!confirm(name + ' 의 키를 삭제할까요?')) return;
+
+      try {
+        const res = await fetch(API + '/delete', {
+          method: 'POST',
+          headers: hdrs(),
+          body: JSON.stringify({ id })
+        });
+
+        const data = await res.json();
+
+        if (data.ok || data.success) {
+          showToast('삭제됐습니다.', 'green');
+          await refreshTable();
+        } else {
+          showToast(data.msg || '삭제 실패', 'red');
+        }
+      } catch (e) {
+        showToast('서버 연결 실패', 'red');
+      }
+    }
+
+    async function refreshTable() {
+      allKeys = await loadKeys();
+      renderKeyStats(allKeys);
+      renderTable();
+    }
+
+    function renderKeyStats(keys) {
+      const now = new Date();
+      document.getElementById('statTotal').textContent = keys.length;
+      document.getElementById('statActive').textContent = keys.filter(k => {
+        if (k.status !== 'active') return false;
+        const exp = new Date(k.expires_at);
+        return Number.isNaN(exp.getTime()) ? true : exp >= now;
+      }).length;
+      document.getElementById('statRevoked').textContent = keys.filter(k => k.status === 'revoked').length;
+      document.getElementById('statSoon').textContent = keys.filter(k => {
+        if (k.status !== 'active') return false;
+        const d = (new Date(k.expires_at) - now) / 86400000;
+        return d <= 30 && d > 0;
+      }).length;
+    }
+
+    function renderTable() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase();
+      const list = allKeys.filter(k =>
+        String(k.buyer_name || '').toLowerCase().includes(q) ||
+        String(k.license_key || '').toLowerCase().includes(q)
+      );
+
+      const body = document.getElementById('tableBody');
+
+      if (!list.length) {
+        body.innerHTML = '<div class="empty-state">발급된 키가 없습니다. 위에서 새 키를 발급해 주세요.</div>';
+        return;
+      }
+
+      body.innerHTML = list.map(k => {
+        const st = k.status || 'active';
+        const expTs = new Date(k.expires_at).getTime();
+        const isExpired = !Number.isNaN(expTs) && expTs < Date.now() && st === 'active';
+        const statusClass = isExpired ? 'expired' : st;
+        const statusLabel = isExpired ? '만료' : (st === 'active' ? '활성' : '정지');
+
+        return `
+          <div class="table-row ${st === 'revoked' ? 'revoked' : ''}">
+            <div class="td mono">${k.license_key || '-'}</div>
+            <div class="td">${k.buyer_name || '-'}</div>
+            <div class="td" style="color:var(--text2);font-size:12px">${fmtDate(k.issued_at)}</div>
+            <div class="td" style="font-size:12px">${(Number(k.months) >= 120) ? '영구' : fmtDate(k.expires_at)}</div>
+            <div class="td" style="font-size:12px;color:var(--text2)">${fmtDate(k.last_used)}</div>
+            <div class="td"><span class="status-badge ${statusClass}">${statusLabel}</span></div>
+            <div class="td" style="gap:6px;display:flex;flex-wrap:wrap">
+              <button class="btn-revoke ${st === 'revoked' ? 'revoked' : 'active'}" onclick="toggleRevoke(${k.id}, '${st}')">${st === 'revoked' ? '복원' : '정지'}</button>
+              <button class="btn-revoke active" style="color:var(--text3);border-color:var(--border2)" onclick="deleteKey(${k.id}, '${String(k.license_key || '').replace(/'/g, "\\'")}', '${String(k.buyer_name || '').replace(/'/g, "\\'")}')">삭제</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function exportCSV() {
+      if (!allKeys.length) {
+        showToast('내보낼 데이터가 없습니다.', 'red');
+        return;
+      }
+
+      const rows = [
+        ['license_key', 'buyer_name', 'months', 'issued_at', 'expires_at', 'last_used', 'status', 'device_count', 'max_devices']
+      ];
+
+      allKeys.forEach(k => {
+        rows.push([
+          k.license_key || '',
+          k.buyer_name || '',
+          k.months || '',
+          k.issued_at || '',
+          k.expires_at || '',
+          k.last_used || '',
+          k.status || '',
+          k.device_count || 0,
+          k.max_devices || 0
+        ]);
+      });
+
+      const csv = rows.map(row =>
+        row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+
+      const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'btcai-licenses.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    (async function init() {
+      await loadLandingStats();
+      await loadProofData();
+      await refreshTable();
+    })();
+  </script>
+</body>
+</html>

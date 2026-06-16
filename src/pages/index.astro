@@ -1,0 +1,341 @@
+---
+// Landing Page - BTC Signal AI (English)
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTC Signal AI — Real-Time Trading Signals</title>
+<meta name="description" content="Get instant LONG/SHORT signals for BTC, ETH, SOL and BNB. AI-powered technical analysis with auto-calculated entry, target, and stop-loss prices.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0d14;--card:#13192a;--card2:#1a2236;--border:#1e2d47;--border2:#263654;--green:#06b66b;--green-bg:rgba(6,182,107,0.1);--red:#f04452;--blue:#3182f6;--blue-bg:rgba(49,130,246,0.1);--gold:#f5a623;--text:#e8edf5;--text2:#8b95a7;--text3:#4a5568;--r:12px;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.toast-wrap{position:fixed;bottom:28px;left:28px;z-index:999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--border2);border-left:3px solid var(--green);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateX(-120%);transition:transform .4s cubic-bezier(.34,1.56,.64,1);max-width:300px;pointer-events:none;}
+.toast.show{transform:translateX(0);}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 1s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.toast-name{font-weight:600;color:var(--green);}
+.toast-time{font-size:11px;color:var(--text3);margin-top:2px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,13,20,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;}
+.nav-inner{max-width:1100px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo-icon{width:32px;height:32px;border-radius:8px;background:var(--green);display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;}
+.nav-logo-text{font-weight:700;font-size:16px;}
+.nav-links{display:flex;gap:28px;font-size:14px;}
+.nav-links a{color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-btn{padding:8px 18px;background:var(--green);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;}
+@media(max-width:640px){.nav-links{display:none;}}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 24px 80px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 20%,rgba(6,182,107,0.08) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid rgba(6,182,107,.25);padding:5px 14px;border-radius:20px;margin-bottom:24px;}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+h1{font-size:clamp(36px,6vw,66px);font-weight:800;line-height:1.12;letter-spacing:-1.5px;margin-bottom:20px;}
+h1 span{color:var(--green);}
+.hero-sub{font-size:clamp(16px,2vw,19px);color:var(--text2);margin-bottom:36px;line-height:1.7;max-width:580px;margin-left:auto;margin-right:auto;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px;}
+.btn-primary{padding:14px 32px;background:var(--green);color:#fff;border-radius:10px;font-size:16px;font-weight:700;text-decoration:none;display:inline-block;}
+.btn-ghost{padding:14px 28px;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:10px;font-size:15px;font-weight:500;text-decoration:none;display:inline-block;}
+.btn-trial{padding:14px 24px;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(49,130,246,.3);border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;display:inline-block;}
+.hero-stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;}
+.stat-val{font-size:32px;font-weight:800;font-family:'IBM Plex Mono',monospace;}
+.stat-lbl{font-size:12px;color:var(--text3);margin-top:2px;}
+section{padding:80px 24px;}
+.inner{max-width:1060px;margin:0 auto;}
+.text-center{text-align:center;margin-bottom:48px;}
+.sec-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);background:var(--green-bg);border:1px solid rgba(6,182,107,.2);padding:4px 12px;border-radius:20px;margin-bottom:14px;}
+.sec-title{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-0.5px;margin-bottom:12px;}
+.sec-sub{font-size:16px;color:var(--text2);max-width:560px;}
+.sec-sub.center{margin:0 auto;}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px;}
+@media(max-width:768px){.feat-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.feat-grid{grid-template-columns:1fr;}}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;}
+.feat-icon{font-size:28px;margin-bottom:12px;}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:8px;}
+.feat-desc{font-size:13px;color:var(--text2);line-height:1.7;}
+.signal-preview{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.preview-bar{background:var(--card2);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px;}
+.preview-dots{display:flex;gap:6px;}
+.pd{width:12px;height:12px;border-radius:50%;}
+.preview-title{flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--text2);}
+.preview-live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--green);}
+.preview-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;}
+.preview-body{padding:20px;}
+.preview-signal{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.ps-badge{display:inline-block;font-size:11px;font-weight:700;background:var(--green);color:#fff;padding:2px 10px;border-radius:4px;margin-bottom:6px;}
+.ps-name{font-size:22px;font-weight:700;color:var(--green);}
+.ps-reason{font-size:12px;color:var(--text2);margin-top:4px;}
+.ps-lev-lbl{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.ps-lev{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.preview-prices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.pp-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.pp-lbl{font-size:11px;font-weight:600;margin-bottom:4px;}
+.pp-lbl.buy{color:var(--green);}
+.pp-lbl.sell{color:var(--red);}
+.pp-lbl.stop{color:var(--gold);}
+.pp-val{font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);}
+.purchase-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.purchase-live-badge{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text2);background:var(--card2);border:1px solid var(--border);padding:6px 14px;border-radius:20px;}
+.purchase-list{display:flex;flex-direction:column;gap:8px;}
+.purchase-item{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:14px;}
+.pi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pi-dot.green{background:var(--green);}
+.pi-dot.blue{background:var(--blue);}
+.pi-name{flex:1;font-weight:600;}
+.pi-plan{font-size:12px;color:var(--text2);}
+.pi-plan span{color:var(--green);font-weight:600;}
+.pi-price{font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.reviews-sec{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:768px){.reviews-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.reviews-grid{grid-template-columns:1fr;}}
+.review-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.review-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.review-avatar{font-size:28px;}
+.review-stars{color:var(--gold);font-size:13px;margin-bottom:2px;}
+.review-name{font-size:13px;font-weight:600;color:var(--text2);}
+.review-text{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;}
+.review-tag{font-size:11px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid rgba(6,182,107,.2);padding:3px 10px;border-radius:20px;display:inline-block;}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:768px){.pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto;}}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;}
+.price-card.popular{border-color:var(--green);background:linear-gradient(135deg,var(--card),rgba(6,182,107,0.05));}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;background:var(--green);color:#fff;padding:3px 14px;border-radius:20px;white-space:nowrap;}
+.price-plan{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:10px;}
+.price-amount{font-size:42px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--text);line-height:1;}
+.price-period{font-size:13px;color:var(--text3);margin-bottom:20px;margin-top:4px;}
+.price-features{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.pf{font-size:13px;color:var(--text2);display:flex;align-items:flex-start;gap:8px;}
+.pf-check{color:var(--green);font-weight:700;flex-shrink:0;}
+.price-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none;}
+.price-btn.primary{background:var(--green);color:#fff;}
+.price-btn.ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.cta-sec{padding:80px 24px;background:linear-gradient(135deg,var(--card),rgba(6,182,107,0.05));}
+footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24px;text-align:center;font-size:12px;color:var(--text3);line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="toast-wrap" id="toastWrap"></div>
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">₿</div>
+      <div class="nav-logo-text">BTC Signal AI</div>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <a class="nav-btn" href="#pricing">Start Now</a>
+  </div>
+</nav>
+<div class="hero">
+  <div style="position:relative;z-index:1;width:100%;">
+    <div style="max-width:800px;margin:0 auto;">
+      <div class="hero-badge"><div class="hero-badge-dot"></div> Live Binance Data · Fully Automated Analysis</div>
+      <h1>Get BTC trading signals<br><span>powered by AI</span> in real time</h1>
+      <p class="hero-sub">No chart-reading skills needed.<br>Know instantly whether to enter now or wait for a better setup.</p>
+      <div class="hero-btns">
+        <a class="btn-primary" href="#pricing">Buy Now</a>
+        <a class="btn-ghost" href="#features">Explore Features</a>
+        <a class="btn-trial" href="/analyzer?trial=1">🔍 Try Free Demo</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-val"><span id="cnt1">127</span>+</div><div class="stat-lbl">Total Buyers</div></div>
+        <div class="stat"><div class="stat-val"><span id="cnt2">96</span>%</div><div class="stat-lbl">Renewal Rate</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<section id="features">
+  <div class="inner">
+    <div class="text-center">
+      <div class="sec-badge">Core Features</div>
+      <div class="sec-title">Why BTC Signal AI?</div>
+      <p class="sec-sub center">See instantly whether it is time to LONG, SHORT, or HOLD.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon">📊</div><div class="feat-title">Professional-grade analysis, automated</div><div class="feat-desc">The same chart logic traders spend years learning is processed in 0.1 seconds. You only need to read the signal.</div></div>
+      <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-title">Instant LONG / SHORT signals</div><div class="feat-desc">Based on a combined indicator score, the system automatically decides the best position—LONG, SHORT, or HOLD—and even shows suggested leverage.</div></div>
+      <div class="feat-card"><div class="feat-icon">🎯</div><div class="feat-title">Auto-calculated entry, target, and stop</div><div class="feat-desc">Using ATR-based logic, it provides precise entry price, take-profit target, and stop-loss levels in real dollar prices.</div></div>
+      <div class="feat-card"><div class="feat-icon">📈</div><div class="feat-title">Live Binance chart integration</div><div class="feat-desc">Includes real-time TradingView-style candlestick charts. Track BTC, ETH, SOL, BNB and switch from 1-minute to 1-day timeframes.</div></div>
+      <div class="feat-card"><div class="feat-icon">🔄</div><div class="feat-title">Auto-refresh every 60 seconds</div><div class="feat-desc">The analysis updates every minute automatically. Stay on the latest signal without clicking refresh.</div></div>
+      <div class="feat-card"><div class="feat-icon">🔐</div><div class="feat-title">Secure license-based access</div><div class="feat-desc">Protected by license keys issued only to paying users. No key, no access—and expired keys are blocked automatically.</div></div>
+    </div>
+    <div class="signal-preview">
+      <div class="preview-bar">
+        <div class="preview-dots"><div class="pd" style="background:#f04452"></div><div class="pd" style="background:#f5a623"></div><div class="pd" style="background:#06b66b"></div></div>
+        <div class="preview-title">btcsignal.ai — Live Analysis</div>
+        <div class="preview-live"><div class="preview-live-dot"></div>LIVE</div>
+      </div>
+      <div class="preview-body">
+        <div class="preview-signal">
+          <div>
+            <div class="ps-badge">LONG</div>
+            <div class="ps-name">Long (LONG)</div>
+            <div class="ps-reason">RSI oversold zone · MACD golden cross · Above MA20 and MA50</div>
+          </div>
+          <div>
+            <div class="ps-lev-lbl">Suggested Leverage</div>
+            <div class="ps-lev" style="color:var(--text)">3x ~ 5x</div>
+          </div>
+        </div>
+        <div class="preview-prices">
+          <div class="pp-card"><div class="pp-lbl buy">Suggested Entry</div><div class="pp-val" style="filter:blur(5px);user-select:none">$70,840.00</div></div>
+          <div class="pp-card"><div class="pp-lbl sell">Take Profit</div><div class="pp-val" style="filter:blur(5px);user-select:none">$72,450.00</div></div>
+          <div class="pp-card"><div class="pp-lbl stop">Stop Loss</div><div class="pp-val" style="filter:blur(5px);user-select:none">$70,035.00</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section style="padding:60px 20px;background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="inner">
+    <div class="purchase-header">
+      <div>
+        <div class="sec-badge">Live Activity</div>
+        <div class="sec-title" style="font-size:28px;margin-bottom:0">People are joining right now</div>
+      </div>
+      <div class="purchase-live-badge">
+        <div class="pi-dot green" style="animation:blink 1s infinite"></div>
+        Updating live
+      </div>
+    </div>
+    <div class="purchase-list" id="purchaseList"></div>
+  </div>
+</section>
+<section id="reviews" class="reviews-sec">
+  <div class="inner">
+    <div class="text-center">
+      <div class="sec-badge">User Reviews</div>
+      <div class="sec-title">Trusted by active traders</div>
+      <p class="sec-sub center">Real feedback from actual users. No hype, just honest results.</p>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card"><div class="review-top"><div class="review-avatar">😊</div><div><div class="review-stars">★★★★★</div><div class="review-name">ko***27</div></div></div><div class="review-text">"I was skeptical at first, but after following the signals, I started seeing consistent profits. The stop-loss levels are surprisingly accurate."</div><div class="review-tag">On 3-Month Plan</div></div>
+      <div class="review-card"><div class="review-top"><div class="review-avatar">🙂</div><div><div class="review-stars">★★★★★</div><div class="review-name">bit***91</div></div></div><div class="review-text">"I used to trade based on gut feeling, but this completely changed my approach. Now I rely on clear signals instead of emotions."</div><div class="review-tag">1-Month → Lifetime Upgrade</div></div>
+      <div class="review-card"><div class="review-top"><div class="review-avatar">😄</div><div><div class="review-stars">★★★★★</div><div class="review-name">trd***55</div></div></div><div class="review-text">"When a LONG signal appears, all key levels — Entry, Target, and Stop Loss — are clearly provided. It makes planning trades much easier."</div><div class="review-tag">On 6-Month Plan</div></div>
+      <div class="review-card"><div class="review-top"><div class="review-avatar">😎</div><div><div class="review-stars">★★★★☆</div><div class="review-name">moon***k</div></div></div><div class="review-text">"I use the 4-hour signals for swing trading, and they've been very reliable. Not perfect, but my win rate definitely improved."</div><div class="review-tag">On 3-Month Plan</div></div>
+      <div class="review-card"><div class="review-top"><div class="review-avatar">🤩</div><div><div class="review-stars">★★★★★</div><div class="review-name">jin***42</div></div></div><div class="review-text">"I can't watch charts all day, so the auto-refresh every 60 seconds is a huge plus. The interface is clean and easy to read."</div><div class="review-tag">Lifetime Access</div></div>
+      <div class="review-card"><div class="review-top"><div class="review-avatar">😁</div><div><div class="review-stars">★★★★★</div><div class="review-name">won***78</div></div></div><div class="review-text">"I even recommended it to my friends. It's simple enough for beginners, and very practical once you understand LONG and SHORT."</div><div class="review-tag">1-Month → Extended to 3 Months</div></div>
+    </div>
+  </div>
+</section>
+<section id="pricing">
+  <div class="inner">
+    <div class="text-center">
+      <div class="sec-badge">Plans</div>
+      <div class="sec-title">Start easily with USDT</div>
+      <p class="sec-sub center" style="max-width:700px">Pay with USDT for quick access. The longer the plan, the lower the monthly cost. All plans include the same core features.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-plan">1 Month</div><div class="price-amount">$39</div><div class="price-period">USDT / 1 month</div>
+        <div class="price-features">
+          <div class="pf"><span class="pf-check">✓</span>Real-time BTC · ETH · SOL · BNB analysis</div>
+          <div class="pf"><span class="pf-check">✓</span>Automatic LONG / SHORT / HOLD signals</div>
+          <div class="pf"><span class="pf-check">✓</span>Entry · Target · Stop Loss</div>
+          <div class="pf"><span class="pf-check">✓</span>Live charts (1m to 1d)</div>
+          <div class="pf"><span class="pf-check">✓</span>Auto-refresh every 60s</div>
+        </div>
+        <button class="price-btn ghost" onclick="openPayment(39,'1month')">Buy Now</button>
+      </div>
+      <div class="price-card popular">
+        <div class="popular-badge">🔥 Most Popular</div>
+        <div class="price-plan">3 Months</div><div class="price-amount">$99</div><div class="price-period">USDT / 3 months (33 USDT/mo)</div>
+        <div class="price-features">
+          <div class="pf"><span class="pf-check">✓</span>Includes everything in the 1-month plan</div>
+          <div class="pf"><span class="pf-check">✓</span>Save 6 USDT per month</div>
+          <div class="pf"><span class="pf-check">✓</span>Priority support</div>
+          <div class="pf"><span class="pf-check">✓</span>Early access to new features</div>
+          <div class="pf"><span class="pf-check">✓</span>Free updates during subscription</div>
+        </div>
+        <button class="price-btn primary" onclick="openPayment(99,'3month')">Buy Now</button>
+      </div>
+      <div class="price-card">
+        <div class="price-plan">12 Months</div><div class="price-amount">$249</div><div class="price-period">USDT / 12 months (20.75 USDT/mo)</div>
+        <div class="price-features">
+          <div class="pf"><span class="pf-check">✓</span>Includes everything in the 3-month plan</div>
+          <div class="pf"><span class="pf-check">✓</span>Lowest monthly cost at 20.75 USDT</div>
+          <div class="pf"><span class="pf-check">✓</span>All updates included for 1 year</div>
+          <div class="pf"><span class="pf-check">✓</span>VIP support</div>
+          <div class="pf"><span class="pf-check">✓</span>New supported coins included automatically</div>
+        </div>
+        <button class="price-btn ghost" onclick="openPayment(249,'12month')">Buy Now</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:20px;">
+      <a href="/analyzer?trial=1" style="font-size:14px;color:var(--green);text-decoration:none;border-bottom:1px solid rgba(6,182,107,.3);padding-bottom:2px;">🔍 Try the free demo before paying →</a>
+    </div>
+  </div>
+</section>
+<section class="cta-sec">
+  <div class="inner" style="text-align:center;padding:20px 0;">
+    <div class="sec-title">Start today</div>
+    <p class="sec-sub center" style="margin:14px auto 32px;">Message us on Telegram, pay with USDT, and receive your license key right away.</p>
+    <a class="btn-primary" href="#pricing" style="font-size:17px;padding:18px 48px;">Buy Now</a>
+  </div>
+</section>
+<footer>
+  <div>BTC Signal AI · Automated real-time technical analysis service</div>
+  <div style="margin-top:6px;">This service provides information for reference only. All investment decisions are your own responsibility.</div>
+</footer>
+<script>
+function openPayment(amount, plan) {
+  window.location.href = `/api/payment/create?amount=${amount}&plan=${plan}`;
+}
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.buyers) document.getElementById('cnt1').textContent = d.buyers;
+    if (d.renewal_rate) document.getElementById('cnt2').textContent = d.renewal_rate;
+  } catch(e) {}
+}
+const proofItems = [
+  {name:'ko***27',plan:'3-Month Plan',price:'$99 USDT',color:'green'},
+  {name:'bit***91',plan:'12-Month Plan',price:'$249 USDT',color:'blue'},
+  {name:'trd***55',plan:'1-Month Plan',price:'$39 USDT',color:'green'},
+  {name:'moon***k',plan:'3-Month Plan',price:'$99 USDT',color:'green'},
+  {name:'jin***42',plan:'12-Month Plan',price:'$249 USDT',color:'blue'},
+  {name:'won***78',plan:'1-Month Plan',price:'$39 USDT',color:'green'},
+  {name:'sol***33',plan:'3-Month Plan',price:'$99 USDT',color:'green'}
+];
+const toastPhrases = ['just joined','purchased a moment ago','recently registered','just got started'];
+function renderPurchaseList() {
+  const list = document.getElementById('purchaseList');
+  if (!list) return;
+  proofItems.forEach((p,i) => setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'purchase-item';
+    el.innerHTML = `<div class="pi-dot ${p.color}"></div><div class="pi-name">${p.name} <span style="font-size:13px;color:var(--text2);font-weight:400">purchased</span></div><div class="pi-plan">Plan: <span>${p.plan}</span></div><div class="pi-price">${p.price}</div>`;
+    list.appendChild(el);
+  }, i * 150));
+}
+function showToast() {
+  const wrap = document.getElementById('toastWrap');
+  const p = proofItems[Math.floor(Math.random()*proofItems.length)];
+  const phrase = toastPhrases[Math.floor(Math.random()*toastPhrases.length)];
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<div class="toast-dot"></div><div><div><span class="toast-name">${p.name}</span> purchased</div><div class="toast-time">${p.plan} · ${phrase}</div></div>`;
+  wrap.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 50);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 4000);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  loadStats();
+  renderPurchaseList();
+  setTimeout(() => { showToast(); setInterval(showToast, Math.random()*7000+8000); }, 3000);
+});
+</script>
+</body>
+</html>

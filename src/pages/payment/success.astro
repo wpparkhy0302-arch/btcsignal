@@ -1,0 +1,52 @@
+---
+const { searchParams } = Astro.url;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Successful — BTC Signal AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0d14;--card:#13192a;--border:#1e2d47;--green:#06b66b;--green-bg:rgba(6,182,107,0.1);--text:#e8edf5;--text2:#8b95a7;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;max-width:480px;width:100%;text-align:center;}
+.icon{font-size:56px;margin-bottom:20px;}
+h1{font-size:28px;font-weight:800;margin-bottom:10px;}
+.sub{font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:32px;}
+.key-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px;}
+.key-label{font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.key-val{font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);letter-spacing:2px;}
+.info{font-size:13px;color:var(--text2);background:rgba(6,182,107,0.06);border:1px solid rgba(6,182,107,0.15);border-radius:10px;padding:14px;margin-bottom:28px;line-height:1.7;}
+.btn{display:inline-block;padding:14px 32px;background:var(--green);color:#fff;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">🎉</div>
+  <h1>Payment Successful!</h1>
+  <p class="sub">Your license key has been generated.<br>Copy it and use it to access BTC Signal AI.</p>
+  <div class="key-box">
+    <div class="key-label">Your License Key</div>
+    <div class="key-val" id="licenseKey">Loading...</div>
+  </div>
+  <div class="info">
+    ✉️ A confirmation email with your key has been sent.<br>
+    🔐 Enter this key on the analyzer page to get started.
+  </div>
+  <a class="btn" href="/analyzer">Go to Analyzer →</a>
+</div>
+<script>
+// URL 파라미터에서 키 가져오기 (결제 완료 후 리다이렉트 시 전달)
+const params = new URLSearchParams(window.location.search);
+const key = params.get('key');
+if (key) {
+  document.getElementById('licenseKey').textContent = key;
+} else {
+  document.getElementById('licenseKey').textContent = 'Check your email for the key';
+}
+</script>
+</body>
+</html>
