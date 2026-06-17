@@ -379,7 +379,7 @@ document.getElementById('lgInput').addEventListener('input', function() {
   if (v.length > 5)  v = v.slice(0,5) + '-' + v.slice(5);
   if (v.length > 10) v = v.slice(0,10) + '-' + v.slice(10);
   if (v.length > 15) v = v.slice(0,15) + '-' + v.slice(15);
-  this.value = v.slice(0,19);
+  this.value = v.slice(0,20);
 });
 document.getElementById('lgInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitKey();
