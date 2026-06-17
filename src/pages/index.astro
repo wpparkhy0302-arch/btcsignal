@@ -307,6 +307,15 @@ async function loadStats() {
   } catch(e) {}
 }
 
+const PLAN_MAP = {
+  '1개월': '1 month',
+  '3개월': '3 months',
+  '6개월': '6 months',
+  '12개월': '12 months',
+  '24개월 (2년)': '24 months (2yr)',
+};
+function mapPlan(plan) { return PLAN_MAP[plan] || plan; }
+
 async function loadProofData() {
   try {
     const res = await fetch(WP_API + '/proof-data?_=' + Date.now(), {
@@ -333,7 +342,7 @@ function renderPurchaseList() {
     el.innerHTML = `
       <div class="pi-dot ${p.color || 'green'}"></div>
       <div class="pi-name">${p.name} <span style="font-size:13px;color:var(--text2);font-weight:400">purchased</span></div>
-      <div class="pi-plan">Plan: <span>${p.plan}</span></div>
+      <div class="pi-plan">Plan: <span>${mapPlan(p.plan)}</span></div>
       <div class="pi-price">${p.price}</div>`;
     list.appendChild(el);
   }, i * 150));
@@ -346,7 +355,7 @@ function showToast() {
   const phrase = toastPhrases[Math.floor(Math.random() * toastPhrases.length)];
   const t = document.createElement('div');
   t.className = 'toast';
-  t.innerHTML = `<div class="toast-dot"></div><div><div><span class="toast-name">${p.name}</span> purchased</div><div class="toast-time">${p.plan} · ${phrase}</div></div>`;
+  t.innerHTML = `<div class="toast-dot"></div><div><div><span class="toast-name">${p.name}</span> purchased</div><div class="toast-time">${mapPlan(p.plan)} · ${phrase}</div></div>`;
   wrap.appendChild(t);
   setTimeout(() => t.classList.add('show'), 50);
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 4000);
