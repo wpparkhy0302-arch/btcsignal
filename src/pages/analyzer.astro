@@ -1073,7 +1073,7 @@ function renderAnalysis(sig, ticker) {
     <div class="sec-label">Price Levels</div>
     <div class="price-row">
       <div class="price-card">
-        <div class="price-tag ${sig.position==='LONG'?'buy':sig.position==='SHORT'?'sell':'stop'}">${entryLabel}</div>
+        <div class="price-tag ${sig.position==='LONG'?'buy':sig.position==='SHORT'?'sell':'stop'}">Suggested Entry</div>
         <div class="price-val" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
           ${isTrial ? '$00,000.00' : sig.entryPrice}
         </div>
