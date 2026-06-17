@@ -113,7 +113,7 @@ section{padding:80px 24px;}
 .price-features{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
 .pf{font-size:13px;color:var(--text2);display:flex;align-items:flex-start;gap:8px;}
 .pf-check{color:var(--green);font-weight:700;flex-shrink:0;}
-.price-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none;}
+.price-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none;display:block;text-align:center;text-decoration:none;box-sizing:border-box;}
 .price-btn.primary{background:var(--green);color:#fff;}
 .price-btn.ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
 .cta-sec{padding:80px 24px;background:linear-gradient(135deg,var(--card),rgba(6,182,107,0.05));}
@@ -245,7 +245,7 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
           <div class="pf"><span class="pf-check">✓</span>Live charts (1m to 1d)</div>
           <div class="pf"><span class="pf-check">✓</span>Auto-refresh every 60s</div>
         </div>
-        <button class="price-btn ghost" onclick="openPayment(39,'1month')">Buy Now</button>
+        <a class="price-btn ghost" href="/api/payment/create?plan=1month">Buy Now</a>
       </div>
       <div class="price-card popular">
         <div class="popular-badge">🔥 Most Popular</div>
@@ -257,7 +257,7 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
           <div class="pf"><span class="pf-check">✓</span>Early access to new features</div>
           <div class="pf"><span class="pf-check">✓</span>Free updates during subscription</div>
         </div>
-        <button class="price-btn primary" onclick="openPayment(99,'3month')">Buy Now</button>
+        <a class="price-btn primary" href="/api/payment/create?plan=3month">Buy Now</a>
       </div>
       <div class="price-card">
         <div class="price-plan">12 Months</div><div class="price-amount">$249</div><div class="price-period">USDT / 12 months (20.75 USDT/mo)</div>
@@ -268,7 +268,7 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
           <div class="pf"><span class="pf-check">✓</span>VIP support</div>
           <div class="pf"><span class="pf-check">✓</span>New supported coins included automatically</div>
         </div>
-        <button class="price-btn ghost" onclick="openPayment(249,'12month')">Buy Now</button>
+        <a class="price-btn ghost" href="/api/payment/create?plan=12month">Buy Now</a>
       </div>
     </div>
     <div style="text-align:center;margin-top:20px;">
@@ -287,7 +287,7 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
   <div>BTC Signal AI · Automated real-time technical analysis service</div>
   <div style="margin-top:6px;">This service provides information for reference only. All investment decisions are your own responsibility.</div>
 </footer>
-<script>
+<script is:inline>
 function openPayment(amount, plan) {
   window.location.href = `/api/payment/create?amount=${amount}&plan=${plan}`;
 }

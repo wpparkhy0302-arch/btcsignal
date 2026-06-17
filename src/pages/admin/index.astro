@@ -1,3 +1,19 @@
+---
+import { createHmac } from 'crypto';
+
+const adminPassword = import.meta.env.ADMIN_PASSWORD ?? '';
+const sessionCookie = Astro.cookies.get('admin_session')?.value ?? '';
+
+let isAuthenticated = false;
+if (adminPassword && sessionCookie) {
+  const expected = createHmac('sha256', adminPassword).update('admin-session').digest('hex');
+  isAuthenticated = sessionCookie === expected;
+}
+
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+---
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -38,10 +54,17 @@
     }
     .title{font-size:18px;font-weight:800;line-height:1.2}
     .sub{font-size:13px;color:var(--text2);margin-top:4px}
+    .topbar-right{display:flex;align-items:center;gap:10px}
     .admin-badge{
       padding:6px 12px;border-radius:999px;border:1px solid #6b4b10;
       color:#ffb020;background:rgba(255,176,32,.08);font-size:12px;font-weight:700
     }
+    .btn-logout{
+      padding:6px 14px;border-radius:999px;border:1px solid var(--border2);
+      color:var(--text2);background:transparent;font-size:12px;font-weight:700;cursor:pointer;
+      transition:border-color .2s,color .2s;
+    }
+    .btn-logout:hover{border-color:#ff4d5a;color:#ff9aa3}
     .panel{
       background:linear-gradient(180deg,#111a2c,#0f1728);
       border:1px solid var(--border);
@@ -156,7 +179,6 @@
       .gen-result.show{display:block}
       .btn-add{margin-top:12px;width:100%}
     }
-  
     .proof-panel{margin-top:22px}
     .proof-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
     .proof-grid-head,.proof-grid-row{
@@ -190,7 +212,6 @@
       width:100%;min-height:110px;border-radius:12px;border:1px solid var(--border2);
       background:#0a1020;color:var(--text);padding:12px 14px;font-size:14px;outline:none;resize:vertical
     }
-
   </style>
 </head>
 <body>
@@ -203,7 +224,10 @@
           <div class="sub">라이선스 키 발급 및 구독자 관리</div>
         </div>
       </div>
-      <div class="admin-badge">ADMIN</div>
+      <div class="topbar-right">
+        <div class="admin-badge">ADMIN</div>
+        <a href="/api/admin/logout"><button class="btn-logout">로그아웃</button></a>
+      </div>
     </div>
 
     <div class="panel">
@@ -248,7 +272,6 @@
           <label>구매자 이름 / 닉네임</label>
           <input type="text" id="genName" placeholder="예) 홍길동">
         </div>
-
         <div class="field">
           <label>구독 기간</label>
           <select id="genPeriod">
@@ -260,7 +283,6 @@
             <option value="120">영구</option>
           </select>
         </div>
-
         <div class="field">
           <label>최대 기기 수</label>
           <select id="genMaxDev">
@@ -271,12 +293,10 @@
           </select>
         </div>
       </div>
-
       <div class="gen-row" style="margin-top:10px;grid-template-columns:auto auto;">
         <button class="btn-gen" id="btnGen" onclick="generateKey()">키 발급</button>
         <button class="btn-copy" onclick="copyLastKey()">복사</button>
       </div>
-
       <div class="gen-result" id="genResult">
         <div>
           <div class="gen-key-val" id="genKeyVal"></div>
@@ -286,17 +306,14 @@
       </div>
     </div>
 
-
     <div class="sec-label">실시간 구매 현황 관리</div>
     <div class="panel proof-panel">
       <div class="panel-title"><span class="dot"></span> 랜딩 페이지 구매자 목록</div>
       <div class="helper">여기서 랜딩 페이지의 실시간 구매 목록과 작은 팝업 문구를 직접 수정할 수 있습니다.</div>
-
       <div class="proof-toolbar" style="margin-top:14px">
         <button class="btn-save" type="button" onclick="addProofRow()">항목 추가</button>
         <button class="btn-copy" type="button" onclick="saveProofData()">목록 저장</button>
       </div>
-
       <div class="proof-grid-head">
         <span>이름 마스킹</span>
         <span>플랜</span>
@@ -306,7 +323,6 @@
         <span></span>
       </div>
       <div id="proofRows"></div>
-
       <div class="proof-phrase-wrap">
         <label style="display:block;font-size:12px;color:var(--text2);font-weight:700;margin-bottom:8px">토스트 문구 (한 줄에 하나씩)</label>
         <textarea id="toastPhrases" class="proof-phrase-textarea" placeholder="방금 합류하셨어요&#10;조금 전 구매 완료&#10;최근 등록 완료"></textarea>
@@ -338,15 +354,9 @@
 
   <div class="toast" id="toast"></div>
 
-  <script>
-    const API = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1';
-
-    let ADMIN_TOKEN = localStorage.getItem('btcai_admin_token') || '';
-    if (!ADMIN_TOKEN) {
-      ADMIN_TOKEN = prompt('관리자 비밀번호를 입력하세요:') || '';
-      if (ADMIN_TOKEN) localStorage.setItem('btcai_admin_token', ADMIN_TOKEN);
-    }
-
+  <script define:vars={{ adminPassword }}>
+    const WP_API = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1';
+    const ADMIN_TOKEN = adminPassword;
 
     function escapeHtml(value) {
       return String(value)
@@ -391,13 +401,11 @@
     }
 
     function addProofRow(item = {}) {
-      const box = document.getElementById('proofRows');
-      box.appendChild(proofRowTemplate(item));
+      document.getElementById('proofRows').appendChild(proofRowTemplate(item));
     }
 
     function collectProofRows() {
-      const rows = Array.from(document.querySelectorAll('#proofRows .proof-grid-row'));
-      return rows.map(row => ({
+      return Array.from(document.querySelectorAll('#proofRows .proof-grid-row')).map(row => ({
         name: row.querySelector('.proof-name').value.trim(),
         plan: row.querySelector('.proof-plan').value.trim(),
         price: row.querySelector('.proof-price').value.trim(),
@@ -408,24 +416,21 @@
 
     async function loadProofData() {
       try {
-        const res = await fetch(API + '/proof-data?_=' + Date.now(), {
+        const res = await fetch(WP_API + '/proof-data?_=' + Date.now(), {
           headers: { 'Accept': 'application/json' },
           cache: 'no-store'
         });
         const data = await res.json();
-
         const items = Array.isArray(data.items) && data.items.length ? data.items : defaultProofItems();
         const phrases = Array.isArray(data.toast_phrases) && data.toast_phrases.length
           ? data.toast_phrases
           : ['방금 합류하셨어요', '조금 전 구매 완료', '최근 등록 완료', '지금 막 시작하셨어요'];
-
         const box = document.getElementById('proofRows');
         box.innerHTML = '';
         items.forEach(item => addProofRow(item));
         document.getElementById('toastPhrases').value = phrases.join('\n');
       } catch (e) {
-        const box = document.getElementById('proofRows');
-        box.innerHTML = '';
+        document.getElementById('proofRows').innerHTML = '';
         defaultProofItems().forEach(item => addProofRow(item));
         document.getElementById('toastPhrases').value = ['방금 합류하셨어요', '조금 전 구매 완료', '최근 등록 완료', '지금 막 시작하셨어요'].join('\n');
       }
@@ -434,42 +439,23 @@
     async function saveProofData() {
       const items = collectProofRows();
       const toast_phrases = document.getElementById('toastPhrases').value
-        .split('\n')
-        .map(v => v.trim())
-        .filter(Boolean);
-
-      if (!items.length) {
-        showToast('실시간 구매 항목을 한 개 이상 입력해 주세요.', 'red');
-        return;
-      }
-
+        .split('\n').map(v => v.trim()).filter(Boolean);
+      if (!items.length) { showToast('실시간 구매 항목을 한 개 이상 입력해 주세요.', 'red'); return; }
       try {
-        const res = await fetch(API + '/proof-data/update', {
-          method: 'POST',
-          headers: hdrs(),
+        const res = await fetch(WP_API + '/proof-data/update', {
+          method: 'POST', headers: hdrs(),
           body: JSON.stringify({ items, toast_phrases })
         });
-
         const data = await res.json();
-
-        if (data.ok || data.success) {
-          showToast('실시간 구매 목록 저장 완료', 'green');
-        } else {
-          showToast(data.msg || '저장 실패', 'red');
-        }
-      } catch (e) {
-        showToast('서버 연결 실패', 'red');
-      }
+        if (data.ok || data.success) showToast('실시간 구매 목록 저장 완료', 'green');
+        else showToast(data.msg || '저장 실패', 'red');
+      } catch (e) { showToast('서버 연결 실패', 'red'); }
     }
-
 
     let allKeys = [];
 
     function hdrs() {
-      return {
-        'Content-Type': 'application/json',
-        'X-Admin-Token': ADMIN_TOKEN
-      };
+      return { 'Content-Type': 'application/json', 'X-Admin-Token': ADMIN_TOKEN };
     }
 
     function showToast(msg, type='green') {
@@ -477,21 +463,18 @@
       el.textContent = msg;
       el.className = 'toast ' + type + ' show';
       clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => {
-        el.className = 'toast';
-      }, 2200);
+      showToast._t = setTimeout(() => { el.className = 'toast'; }, 2200);
     }
 
     function fmtDate(value) {
       if (!value) return '-';
       const d = new Date(value);
-      if (Number.isNaN(d.getTime())) return '-';
-      return d.toLocaleDateString('ko-KR');
+      return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString('ko-KR');
     }
 
     async function loadLandingStats() {
       try {
-        const res = await fetch(API + '/stats');
+        const res = await fetch(WP_API + '/stats');
         const data = await res.json();
         document.getElementById('buyersInput').value = data.buyers ?? '';
         document.getElementById('resubInput').value = data.resub_rate ?? '';
@@ -503,16 +486,12 @@
     async function saveLandingStats() {
       const buyers = parseInt(document.getElementById('buyersInput').value || '0', 10);
       const resub_rate = parseInt(document.getElementById('resubInput').value || '0', 10);
-
       try {
-        const res = await fetch(API + '/stats/update', {
-          method: 'POST',
-          headers: hdrs(),
+        const res = await fetch(WP_API + '/stats/update', {
+          method: 'POST', headers: hdrs(),
           body: JSON.stringify({ buyers, resub_rate })
         });
-
         const data = await res.json();
-
         if (data.ok || data.success) {
           document.getElementById('statsMsg').textContent = '저장되었습니다.';
           showToast('통계 저장 완료', 'green');
@@ -528,131 +507,79 @@
 
     async function loadKeys() {
       try {
-        const res = await fetch(API + '/list?_=' + Date.now(), {
-          headers: {
-            ...hdrs(),
-            'Cache-Control': 'no-cache'
-          },
+        const res = await fetch('/api/admin/license/list', {
+          headers: { ...hdrs(), 'Cache-Control': 'no-cache' },
           cache: 'no-store'
         });
-        if (res.status === 401 || res.status === 403) {
-          showToast('비밀번호 오류', 'red');
-          return [];
-        }
+        if (res.status === 401 || res.status === 403) { showToast('비밀번호 오류', 'red'); return []; }
         const data = await res.json();
         if (Array.isArray(data)) return data;
         if (data && Array.isArray(data.keys)) return data.keys;
         return [];
-      } catch (e) {
-        showToast('목록 불러오기 실패', 'red');
-        return [];
-      }
+      } catch (e) { showToast('목록 불러오기 실패', 'red'); return []; }
     }
 
     async function generateKey() {
       const name = document.getElementById('genName').value.trim();
-      if (!name) {
-        showToast('구매자 이름 입력', 'red');
-        return;
-      }
-
+      if (!name) { showToast('구매자 이름 입력', 'red'); return; }
       const months = parseInt(document.getElementById('genPeriod').value, 10);
       const maxDevices = parseInt(document.getElementById('genMaxDev').value, 10);
       const btn = document.getElementById('btnGen');
-
-      btn.disabled = true;
-      btn.textContent = '발급 중...';
-
+      btn.disabled = true; btn.textContent = '발급 중...';
       try {
-        const res = await fetch(API + '/issue', {
-          method: 'POST',
-          headers: hdrs(),
-          body: JSON.stringify({
-            name: name,
-            buyer: name,
-            months: months,
-            max_devices: maxDevices
-          })
+        const res = await fetch('/api/admin/license/issue', {
+          method: 'POST', headers: hdrs(),
+          body: JSON.stringify({ name, months, max_devices: maxDevices })
         });
-
         const data = await res.json();
-
-        if (data.ok || data.success) {
+        if (data.ok) {
           document.getElementById('genKeyVal').textContent = data.key || '';
-          const expText = data.expires || fmtDate(data.expires_at);
           const label = months >= 120 ? '영구' : months + '개월';
           document.getElementById('genKeyMeta').textContent =
-            `${name} · ${label} · 최대 ${maxDevices}대 · 만료: ${expText}`;
+            `${name} · ${label} · 최대 ${maxDevices}대 · 만료: ${data.expires || fmtDate(data.expires_at)}`;
           document.getElementById('genResult').classList.add('show');
           navigator.clipboard.writeText(data.key || '').catch(() => {});
           showToast('발급 완료! 클립보드에 복사됐어요', 'green');
           await refreshTable();
-        } else {
-          showToast(data.msg || '발급 실패', 'red');
-        }
-      } catch (e) {
-        showToast('서버 연결 실패', 'red');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '키 발급';
-      }
+        } else { showToast(data.msg || '발급 실패', 'red'); }
+      } catch (e) { showToast('서버 연결 실패', 'red'); }
+      finally { btn.disabled = false; btn.textContent = '키 발급'; }
     }
 
     function copyLastKey() {
       const key = document.getElementById('genKeyVal').textContent.trim();
-      if (!key) {
-        showToast('먼저 키를 발급해 주세요.', 'red');
-        return;
-      }
+      if (!key) { showToast('먼저 키를 발급해 주세요.', 'red'); return; }
       navigator.clipboard.writeText(key)
         .then(() => showToast('복사됐어요!', 'green'))
         .catch(() => showToast('복사 실패', 'red'));
     }
 
     async function toggleRevoke(id, currentStatus) {
-      const newStatus = currentStatus === 'active' ? 'revoked' : 'active';
-
+      const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
       try {
-        const res = await fetch(API + '/update', {
-          method: 'POST',
-          headers: hdrs(),
+        const res = await fetch('/api/admin/license/update', {
+          method: 'POST', headers: hdrs(),
           body: JSON.stringify({ id, status: newStatus })
         });
-
         const data = await res.json();
-
-        if (data.ok || data.success) {
-          showToast(newStatus === 'revoked' ? '정지됐습니다.' : '복원됐습니다.', newStatus === 'revoked' ? 'red' : 'green');
+        if (data.ok) {
+          showToast(newStatus === 'suspended' ? '정지됐습니다.' : '복원됐습니다.', newStatus === 'suspended' ? 'red' : 'green');
           await refreshTable();
-        } else {
-          showToast(data.msg || '처리 실패', 'red');
-        }
-      } catch (e) {
-        showToast('서버 연결 실패', 'red');
-      }
+        } else { showToast(data.msg || '처리 실패', 'red'); }
+      } catch (e) { showToast('서버 연결 실패', 'red'); }
     }
 
     async function deleteKey(id, name) {
       if (!confirm(name + ' 의 키를 삭제할까요?')) return;
-
       try {
-        const res = await fetch(API + '/delete', {
-          method: 'POST',
-          headers: hdrs(),
+        const res = await fetch('/api/admin/license/delete', {
+          method: 'POST', headers: hdrs(),
           body: JSON.stringify({ id })
         });
-
         const data = await res.json();
-
-        if (data.ok || data.success) {
-          showToast('삭제됐습니다.', 'green');
-          await refreshTable();
-        } else {
-          showToast(data.msg || '삭제 실패', 'red');
-        }
-      } catch (e) {
-        showToast('서버 연결 실패', 'red');
-      }
+        if (data.ok) { showToast('삭제됐습니다.', 'green'); await refreshTable(); }
+        else { showToast(data.msg || '삭제 실패', 'red'); }
+      } catch (e) { showToast('서버 연결 실패', 'red'); }
     }
 
     async function refreshTable() {
@@ -683,23 +610,21 @@
         String(k.buyer_name || '').toLowerCase().includes(q) ||
         String(k.license_key || '').toLowerCase().includes(q)
       );
-
       const body = document.getElementById('tableBody');
-
       if (!list.length) {
         body.innerHTML = '<div class="empty-state">발급된 키가 없습니다. 위에서 새 키를 발급해 주세요.</div>';
         return;
       }
-
       body.innerHTML = list.map(k => {
         const st = k.status || 'active';
+        const isSuspended = st === 'suspended' || st === 'revoked';
         const expTs = new Date(k.expires_at).getTime();
         const isExpired = !Number.isNaN(expTs) && expTs < Date.now() && st === 'active';
-        const statusClass = isExpired ? 'expired' : st;
-        const statusLabel = isExpired ? '만료' : (st === 'active' ? '활성' : '정지');
-
+        const statusClass = isExpired ? 'expired' : (isSuspended ? 'revoked' : 'active');
+        const statusLabel = isExpired ? '만료' : (isSuspended ? '정지' : '활성');
+        const safeId = String(k.id).replace(/[^a-zA-Z0-9\-]/g, '');
         return `
-          <div class="table-row ${st === 'revoked' ? 'revoked' : ''}">
+          <div class="table-row ${isSuspended ? 'revoked' : ''}">
             <div class="td mono">${k.license_key || '-'}</div>
             <div class="td">${k.buyer_name || '-'}</div>
             <div class="td" style="color:var(--text2);font-size:12px">${fmtDate(k.issued_at)}</div>
@@ -707,8 +632,8 @@
             <div class="td" style="font-size:12px;color:var(--text2)">${fmtDate(k.last_used)}</div>
             <div class="td"><span class="status-badge ${statusClass}">${statusLabel}</span></div>
             <div class="td" style="gap:6px;display:flex;flex-wrap:wrap">
-              <button class="btn-revoke ${st === 'revoked' ? 'revoked' : 'active'}" onclick="toggleRevoke(${k.id}, '${st}')">${st === 'revoked' ? '복원' : '정지'}</button>
-              <button class="btn-revoke active" style="color:var(--text3);border-color:var(--border2)" onclick="deleteKey(${k.id}, '${String(k.license_key || '').replace(/'/g, "\\'")}', '${String(k.buyer_name || '').replace(/'/g, "\\'")}')">삭제</button>
+              <button class="btn-revoke ${isSuspended ? 'revoked' : 'active'}" onclick="toggleRevoke('${safeId}', '${st}')">${isSuspended ? '복원' : '정지'}</button>
+              <button class="btn-revoke active" style="color:var(--text3);border-color:var(--border2)" onclick="deleteKey('${safeId}', '${String(k.license_key || '').replace(/'/g, "\\'")}')">삭제</button>
             </div>
           </div>
         `;
@@ -716,41 +641,18 @@
     }
 
     function exportCSV() {
-      if (!allKeys.length) {
-        showToast('내보낼 데이터가 없습니다.', 'red');
-        return;
-      }
-
-      const rows = [
-        ['license_key', 'buyer_name', 'months', 'issued_at', 'expires_at', 'last_used', 'status', 'device_count', 'max_devices']
-      ];
-
-      allKeys.forEach(k => {
-        rows.push([
-          k.license_key || '',
-          k.buyer_name || '',
-          k.months || '',
-          k.issued_at || '',
-          k.expires_at || '',
-          k.last_used || '',
-          k.status || '',
-          k.device_count || 0,
-          k.max_devices || 0
-        ]);
-      });
-
-      const csv = rows.map(row =>
-        row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
-      ).join('\n');
-
-      const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+      if (!allKeys.length) { showToast('내보낼 데이터가 없습니다.', 'red'); return; }
+      const rows = [['license_key','buyer_name','months','issued_at','expires_at','last_used','status','device_count','max_devices']];
+      allKeys.forEach(k => rows.push([
+        k.license_key||'', k.buyer_name||'', k.months||'', k.issued_at||'',
+        k.expires_at||'', k.last_used||'', k.status||'', k.device_count||0, k.max_devices||0
+      ]));
+      const csv = rows.map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'btcai-licenses.csv';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      a.href = url; a.download = 'btcai-licenses.csv';
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     }
 

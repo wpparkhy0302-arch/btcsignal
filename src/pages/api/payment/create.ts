@@ -1,8 +1,5 @@
 import type { APIRoute } from 'astro';
 
-const NOWPAYMENTS_API_KEY = import.meta.env.NOWPAYMENTS_API_KEY;
-const BASE_URL = import.meta.env.PUBLIC_BASE_URL; // e.g. https://btcsignal.ai
-
 const PLANS: Record<string, { amount: number; months: number; label: string }> = {
   '1month':  { amount: 39,  months: 1,  label: '1 Month' },
   '3month':  { amount: 99,  months: 3,  label: '3 Months' },
@@ -10,6 +7,9 @@ const PLANS: Record<string, { amount: number; months: number; label: string }> =
 };
 
 export const GET: APIRoute = async ({ url }) => {
+  const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
+  const BASE_URL = process.env.PUBLIC_BASE_URL;
+
   const plan = url.searchParams.get('plan') || '';
   const planData = PLANS[plan];
 
@@ -17,7 +17,14 @@ export const GET: APIRoute = async ({ url }) => {
     return new Response('Invalid plan', { status: 400 });
   }
 
+  if (!NOWPAYMENTS_API_KEY) {
+    console.error('Missing NOWPAYMENTS_API_KEY');
+    return new Response('Server configuration error', { status: 500 });
+  }
+
+  let step = 'init';
   try {
+    step = 'fetch';
     const res = await fetch('https://api.nowpayments.io/v1/invoice', {
       method: 'POST',
       headers: {
@@ -27,34 +34,38 @@ export const GET: APIRoute = async ({ url }) => {
       body: JSON.stringify({
         price_amount: planData.amount,
         price_currency: 'usd',
-        pay_currency: 'usdttrc20', // USDT TRC20 기본
+        pay_currency: 'usdttrc20',
         order_id: `btcai_${plan}_${Date.now()}`,
-        order_description: `BTC Signal AI — ${planData.label}`,
+        order_description: `BTC Signal AI - ${planData.label}`,
         ipn_callback_url: `${BASE_URL}/api/payment/webhook`,
         success_url: `${BASE_URL}/payment/success`,
         cancel_url: `${BASE_URL}/#pricing`,
-        is_fixed_rate: true,
+        is_fixed_rate: false,
         is_fee_paid_by_user: false,
       }),
     });
 
-    const data = await res.json();
+    step = 'json';
+    const text = await res.text();
+    console.log('NOWPayments raw response:', res.status, text.substring(0, 500));
+    const data = JSON.parse(text);
 
     if (!res.ok || !data.invoice_url) {
-      console.error('NOWPayments error:', data);
-      return new Response(JSON.stringify({ error: 'Payment creation failed' }), {
+      console.error('NOWPayments error:', JSON.stringify(data));
+      return new Response(JSON.stringify({ error: 'Payment creation failed', detail: data }), {
         status: 500, headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // NOWPayments 결제 페이지로 리다이렉트
     return new Response(null, {
       status: 302,
       headers: { Location: data.invoice_url }
     });
 
   } catch (e) {
-    console.error('Payment error:', e);
-    return new Response('Server error', { status: 500 });
+    console.error(`Payment error at step [${step}]:`, String(e));
+    return new Response(JSON.stringify({ error: String(e), step }), {
+      status: 500, headers: { 'Content-Type': 'application/json' }
+    });
   }
 };

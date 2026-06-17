@@ -3,11 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 const supabase = createClient(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_SERVICE_KEY
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
 );
 
-const IPN_SECRET = import.meta.env.NOWPAYMENTS_IPN_SECRET;
+const IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
 
 const PLAN_MONTHS: Record<string, number> = {
   '1month': 1,

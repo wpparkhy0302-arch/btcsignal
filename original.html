@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -211,18 +211,18 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   <div class="lg-box">
     <div class="lg-logo">₿</div>
     <div class="lg-badge"><div class="lg-dot"></div> BTC Signal AI</div>
-    <div class="lg-title">Enter Your License Key</div>
-    <div class="lg-sub">Enter the key from your purchase email<br>and get instant access.</div>
+    <div class="lg-title">라이선스 키를 입력하세요</div>
+    <div class="lg-sub">구매 후 발급된 키를 입력하면<br>바로 이용할 수 있습니다</div>
     <input class="lg-input" id="lgInput" placeholder="BTCAI-XXXX-XXXX-XX" maxlength="32" autocomplete="off">
-    <button class="lg-btn" id="lgBtn" onclick="submitKey()">Confirm Key</button>
+    <button class="lg-btn" id="lgBtn" onclick="submitKey()">입력 확인</button>
     <div class="lg-error" id="lgError"></div>
     <div style="display:flex;align-items:center;gap:10px;margin:16px 0 4px;">
       <div style="flex:1;height:1px;background:var(--border);"></div>
-      <span style="font-size:12px;color:var(--text3);">or</span>
+      <span style="font-size:12px;color:var(--text3);">또는</span>
       <div style="flex:1;height:1px;background:var(--border);"></div>
     </div>
-    <button class="lg-btn" style="background:transparent;border:1px solid var(--border);color:var(--text2);margin-top:0;" onclick="startTrial()">🔍 Try Free Demo</button>
-    <div class="lg-info">Your key is saved on this device after first entry.<br>Support: contact your purchase source</div>
+    <button class="lg-btn" style="background:transparent;border:1px solid var(--border);color:var(--text2);margin-top:0;" onclick="startTrial()">🔍 무료 체험해보기</button>
+    <div class="lg-info">키는 한 번 입력하면 이 기기에 저장됩니다<br>문의: 구매처에 연락하세요</div>
   </div>
 </div>
 
@@ -232,15 +232,15 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       <div class="logo">₿</div>
       <div>
         <div class="hd-title">BTC Signal AI</div>
-        <div class="hd-sub">Real-Time Technical Analysis · Auto Trading Signals</div>
+        <div class="hd-sub">실시간 기술적 분석 · 자동 매매 신호</div>
       </div>
     </div>
     <div class="hd-badge">v3.0</div>
   </header>
 
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('signal')">📊 Live Analysis</div>
-    <div class="tab" onclick="switchTab('chart')">📈 Chart</div>
+    <div class="tab active" onclick="switchTab('signal')">📊 실시간 분석</div>
+    <div class="tab" onclick="switchTab('chart')">📈 차트</div>
   </div>
 
   <!-- Signal Panel -->
@@ -253,29 +253,29 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
         <option value="BNBUSDT">BNB/USDT</option>
       </select>
       <select class="tf-select" id="tfSelect" onchange="onTfChange()">
-        <option value="1m">1m</option>
-        <option value="5m">5m</option>
-        <option value="15m" selected>15m</option>
-        <option value="1h">1h</option>
-        <option value="4h">4h</option>
-        <option value="1d">1d</option>
+        <option value="1m">1분봉</option>
+        <option value="5m">5분봉</option>
+        <option value="15m" selected>15분봉</option>
+        <option value="1h">1시간봉</option>
+        <option value="4h">4시간봉</option>
+        <option value="1d">1일봉</option>
       </select>
-      <button class="btn-refresh" id="refreshBtn" onclick="runAnalysis()">🔄 Refresh Analysis</button>
-      <div class="ws-status"><div class="ws-dot" id="wsDot"></div><span id="wsLbl">Connecting...</span></div>
+      <button class="btn-refresh" id="refreshBtn" onclick="runAnalysis()">🔄 분석 새로고침</button>
+      <div class="ws-status"><div class="ws-dot" id="wsDot"></div><span id="wsLbl">연결 중...</span></div>
     </div>
 
     <div class="ticker-row">
-      <div class="ticker-card"><div class="ticker-lbl">Price</div><div class="ticker-val neu mono" id="tkPrice">—</div></div>
-      <div class="ticker-card"><div class="ticker-lbl">24h Change</div><div class="ticker-val" id="tkChange">—</div></div>
-      <div class="ticker-card"><div class="ticker-lbl">24h High</div><div class="ticker-val pos mono" id="tkHigh">—</div></div>
-      <div class="ticker-card"><div class="ticker-lbl">24h Low</div><div class="ticker-val neg mono" id="tkLow">—</div></div>
-      <div class="ticker-card"><div class="ticker-lbl">24h Volume</div><div class="ticker-val neu" id="tkVol">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">현재가</div><div class="ticker-val neu mono" id="tkPrice">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h 변동</div><div class="ticker-val" id="tkChange">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h 고가</div><div class="ticker-val pos mono" id="tkHigh">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h 저가</div><div class="ticker-val neg mono" id="tkLow">—</div></div>
+      <div class="ticker-card"><div class="ticker-lbl">24h 거래량</div><div class="ticker-val neu" id="tkVol">—</div></div>
     </div>
 
     <div id="analysisArea">
       <div class="loading-state" id="loadingState">
         <div class="spin"></div>
-        <div>Loading data...</div>
+        <div>데이터 불러오는 중...</div>
       </div>
     </div>
   </div>
@@ -290,12 +290,12 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
         <option value="BNBUSDT">BNB/USDT</option>
       </select>
       <select class="tf-select" id="chartTfSelect" onchange="onChartTfChange()">
-        <option value="1m">1m</option>
-        <option value="5m">5m</option>
-        <option value="15m" selected>15m</option>
-        <option value="1h">1h</option>
-        <option value="4h">4h</option>
-        <option value="1d">1d</option>
+        <option value="1m">1분봉</option>
+        <option value="5m">5분봉</option>
+        <option value="15m" selected>15분봉</option>
+        <option value="1h">1시간봉</option>
+        <option value="4h">4시간봉</option>
+        <option value="1d">1일봉</option>
       </select>
       <div class="ws-status"><div class="ws-dot" id="chartWsDot"></div><span id="chartWsLbl">—</span></div>
     </div>
@@ -305,20 +305,16 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 
 <script>
 // ════════════════════════════════════════
-// LICENSE (server-side verification)
+// LICENSE
 // ════════════════════════════════════════
-const BACKEND_VERIFY_API = '/api/license/verify';
-const BACKEND_SESSION_API = '/api/license/session';
+const WP_API = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1';
 
-window.resetLicense = async () => {
-  try {
-    await fetch(BACKEND_SESSION_API, {
-      method: 'DELETE',
-      credentials: 'same-origin'
-    });
-  } catch (e) {}
-  location.reload();
-};
+function getDeviceId() {
+  let id = localStorage.getItem('btcai_device_id');
+  if (!id) { id = 'dev-' + Math.random().toString(36).slice(2,12); localStorage.setItem('btcai_device_id', id); }
+  return id;
+}
+window.resetLicense = () => { localStorage.removeItem('btcai_license_key'); location.reload(); };
 
 function startTrial() {
   isTrial = true;
@@ -331,85 +327,49 @@ function showLicenseGate() {
   document.getElementById('lgInput').focus();
 }
 
-function setLgErr(msg) {
-  document.getElementById('lgError').textContent = msg || '';
-}
+function setLgErr(msg) { document.getElementById('lgError').textContent = msg || ''; }
 
 async function submitKey() {
   const btn = document.getElementById('lgBtn');
   const key = document.getElementById('lgInput').value.trim().toUpperCase();
-
-  if (!key) {
-    setLgErr('Enter Your License Key.');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Verifying...';
-  setLgErr('');
-
+  if (!key) return setLgErr('라이선스 키를 입력하세요.');
+  btn.disabled = true; btn.textContent = '확인 중...'; setLgErr('');
   try {
-    const res = await fetch(BACKEND_VERIFY_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({ key })
+    const res = await fetch(WP_API + '/verify', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ key, device_id: getDeviceId() })
     });
-
-    const data = await res.json();
-
-    if (!data.ok) {
-      setLgErr(data.msg || 'Verification failed');
-      return;
-    }
-
+    const data = JSON.parse(await res.text());
+    if (!data.ok) return setLgErr(data.msg || '인증 실패');
+    localStorage.setItem('btcai_license_key', key);
     isTrial = false;
     document.getElementById('licenseGate').classList.add('hidden');
     init();
-  } catch (e) {
-    setLgErr('Connection failed: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Confirm Key';
-  }
+  } catch(e) { setLgErr('서버 연결 실패: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = '입력 확인'; }
 }
 
 document.getElementById('lgInput').addEventListener('input', function() {
   let v = this.value.replace(/-/g,'').toUpperCase();
-  if (v.length > 5)  v = v.slice(0,5) + '-' + v.slice(5);
-  if (v.length > 10) v = v.slice(0,10) + '-' + v.slice(10);
-  if (v.length > 15) v = v.slice(0,15) + '-' + v.slice(15);
+  if (v.length>5)  v = v.slice(0,5) +'-'+v.slice(5);
+  if (v.length>10) v = v.slice(0,10)+'-'+v.slice(10);
+  if (v.length>15) v = v.slice(0,15)+'-'+v.slice(15);
   this.value = v.slice(0,19);
 });
-document.getElementById('lgInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') submitKey();
-});
+document.getElementById('lgInput').addEventListener('keydown', e => { if(e.key==='Enter') submitKey(); });
 
 (async function autoAuth() {
-  if (new URLSearchParams(window.location.search).get('trial') === '1') {
-    isTrial = true;
-    document.getElementById('licenseGate').classList.add('hidden');
-    init();
-    return;
-  }
-
+  const saved = localStorage.getItem('btcai_license_key');
+  if (!saved) return;
   try {
-    const res = await fetch(BACKEND_SESSION_API, {
-      method: 'GET',
-      credentials: 'same-origin',
-      cache: 'no-store'
+    const res = await fetch(WP_API + '/verify', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ key: saved, device_id: getDeviceId() })
     });
-
-    const data = await res.json();
-
-    if (data.ok) {
-      isTrial = false;
-      document.getElementById('licenseGate').classList.add('hidden');
-      init();
-    }
-  } catch (e) {
-    // keep gate open
-  }
+    const data = JSON.parse(await res.text());
+    if (data.ok) { document.getElementById('licenseGate').classList.add('hidden'); init(); }
+    else { localStorage.removeItem('btcai_license_key'); setLgErr(data.msg || '인증 만료'); }
+  } catch(e) { document.getElementById('licenseGate').classList.add('hidden'); init(); }
 })();
 
 // ════════════════════════════════════════
@@ -446,12 +406,12 @@ async function fetchKlines(sym, interval, limit=200) {
     const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const raw = await r.json();
-    if (!Array.isArray(raw)) throw new Error('Invalid response');
+    if (!Array.isArray(raw)) throw new Error('잘못된 응답');
     return raw.map(d => ({
       t: d[0]/1000, o: +d[1], h: +d[2], l: +d[3], c: +d[4], v: +d[5]
     }));
   } catch(e) {
-    throw new Error('Binance data load failed. Please access via https:// server.');
+    throw new Error('바이낸스 데이터 로드 실패. 서버(https://)에서 접속해 주세요.');
   }
 }
 
@@ -461,7 +421,7 @@ async function fetchTicker(sym) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
   } catch(e) {
-    throw new Error('Binance ticker load failed. Please access via https:// server.');
+    throw new Error('바이낸스 티커 로드 실패. 서버(https://)에서 접속해 주세요.');
   }
 }
 
@@ -483,7 +443,7 @@ function connectTickerWS(sym) {
   };
   tickerWs.onclose = () => {
     document.getElementById('wsDot').className='ws-dot';
-    document.getElementById('wsLbl').textContent='Disconnected';
+    document.getElementById('wsLbl').textContent='연결 끊김';
   };
 }
 
@@ -537,6 +497,7 @@ function calcMACD(closes, fast=12, slow=26, signal=9) {
   const macdLine = emaFast.map((v,i)=> v!==null&&emaSlow[i]!==null ? v-emaSlow[i] : null);
   const validMacd = macdLine.filter(v=>v!==null);
   const signalLine = calcEMA(validMacd, signal);
+  // 길이 맞추기
   const offset = macdLine.length - validMacd.length;
   const sigFull = new Array(offset).fill(null).concat(
     new Array(validMacd.length - signalLine.length).fill(null).concat(signalLine)
@@ -559,163 +520,22 @@ function calcBollinger(closes, period=20, mult=2) {
   return { mid:sma, upper, lower, bandwidth };
 }
 
+function calcStoch(klineData, k=14, d=3) {
+  const result = [];
+  for (let i=0; i<klineData.length; i++) {
+    if (i < k-1) { result.push(null); continue; }
+    const slice = klineData.slice(i-k+1, i+1);
+    const high = Math.max(...slice.map(x=>x.h));
+    const low  = Math.min(...slice.map(x=>x.l));
+    const close = klineData[i].c;
+    result.push(high===low ? 50 : (close-low)/(high-low)*100);
+  }
+  const dLine = calcSMA(result.filter(v=>v!==null), d);
+  return { k: result, d: dLine };
+}
+
 function calcVolumeMA(volumes, period=20) {
   return calcSMA(volumes, period);
-}
-
-// ── ADX (추세 강도) ──
-function calcADX(kdata, period=14) {
-  const highs = kdata.map(k=>k.h);
-  const lows  = kdata.map(k=>k.l);
-  const closes= kdata.map(k=>k.c);
-  const trArr=[], dmPArr=[], dmNArr=[];
-  for (let i=1; i<kdata.length; i++) {
-    const hl = highs[i]-lows[i];
-    const hpc= Math.abs(highs[i]-closes[i-1]);
-    const lpc= Math.abs(lows[i]-closes[i-1]);
-    trArr.push(Math.max(hl,hpc,lpc));
-    const upMove  = highs[i]-highs[i-1];
-    const downMove= lows[i-1]-lows[i];
-    dmPArr.push(upMove>downMove&&upMove>0?upMove:0);
-    dmNArr.push(downMove>upMove&&downMove>0?downMove:0);
-  }
-  const smooth = (arr, p) => {
-    let s = arr.slice(0,p).reduce((a,b)=>a+b,0);
-    const r=[s];
-    for(let i=p;i<arr.length;i++){s=s-s/p+arr[i];r.push(s);}
-    return r;
-  };
-  const sTR=smooth(trArr,period), sDMP=smooth(dmPArr,period), sDMN=smooth(dmNArr,period);
-  const diP=sDMP.map((v,i)=>sTR[i]?100*v/sTR[i]:0);
-  const diN=sDMN.map((v,i)=>sTR[i]?100*v/sTR[i]:0);
-  const dx=diP.map((v,i)=>{const s=v+diN[i];return s?100*Math.abs(v-diN[i])/s:0;});
-  const adxArr=calcSMA(dx,period);
-  return { adx: adxArr, diP, diN };
-}
-
-// ── 스토캐스틱 RSI ──
-function calcStochRSI(closes, rsiPeriod=14, stochPeriod=14) {
-  const rsi = calcRSI(closes, rsiPeriod).filter(v=>v!==null);
-  const result=[];
-  for(let i=0;i<rsi.length;i++){
-    if(i<stochPeriod-1){result.push(null);continue;}
-    const slice=rsi.slice(i-stochPeriod+1,i+1);
-    const lo=Math.min(...slice), hi=Math.max(...slice);
-    result.push(hi===lo?50:(rsi[i]-lo)/(hi-lo)*100);
-  }
-  return result;
-}
-
-// ── OBV (누적 거래량) ──
-function calcOBV(kdata) {
-  const obv=[0];
-  for(let i=1;i<kdata.length;i++){
-    const prev=obv[obv.length-1];
-    if(kdata[i].c>kdata[i-1].c) obv.push(prev+kdata[i].v);
-    else if(kdata[i].c<kdata[i-1].c) obv.push(prev-kdata[i].v);
-    else obv.push(prev);
-  }
-  return obv;
-}
-
-// ── Fibonacci (스윙 고점/저점 자동 탐지) ──
-function calcFibonacci(kdata, swingLen=10) {
-  const n = kdata.length;
-  // 최근 100개 캔들에서 스윙 고점·저점 탐지
-  const lookback = Math.min(100, n);
-  const slice = kdata.slice(n - lookback);
-  let swingHigh = -Infinity, swingLow = Infinity;
-  let swingHighIdx = 0, swingLowIdx = 0;
-  for(let i=swingLen; i<slice.length-swingLen; i++){
-    const isHigh = slice.slice(i-swingLen,i).every(k=>k.h<=slice[i].h) &&
-                   slice.slice(i+1,i+swingLen+1).every(k=>k.h<=slice[i].h);
-    const isLow  = slice.slice(i-swingLen,i).every(k=>k.l>=slice[i].l) &&
-                   slice.slice(i+1,i+swingLen+1).every(k=>k.l>=slice[i].l);
-    if(isHigh && slice[i].h>swingHigh){ swingHigh=slice[i].h; swingHighIdx=i; }
-    if(isLow  && slice[i].l<swingLow ){ swingLow =slice[i].l; swingLowIdx =i; }
-  }
-  if(swingHigh===-Infinity || swingLow===Infinity) return null;
-  const range = swingHigh - swingLow;
-  const levels = {
-    '0':   swingHigh,
-    '23.6': swingHigh - range*0.236,
-    '38.2': swingHigh - range*0.382,
-    '50':   swingHigh - range*0.5,
-    '61.8': swingHigh - range*0.618,
-    '78.6': swingHigh - range*0.786,
-    '100':  swingLow,
-  };
-  // 추세 방향: 고점이 저점보다 나중이면 하락추세
-  const trend = swingHighIdx > swingLowIdx ? 'down' : 'up';
-  return { levels, swingHigh, swingLow, trend, range };
-}
-
-// ── 거래량 프로파일 POC ──
-function calcVolumeProfile(kdata, bins=20) {
-  const highs  = kdata.map(k=>k.h);
-  const lows   = kdata.map(k=>k.l);
-  const volumes= kdata.map(k=>k.v);
-  const priceMin = Math.min(...lows);
-  const priceMax = Math.max(...highs);
-  const binSize  = (priceMax-priceMin)/bins;
-  const profile  = new Array(bins).fill(0);
-  kdata.forEach((k,i)=>{
-    const lo = Math.floor((k.l-priceMin)/binSize);
-    const hi = Math.ceil((k.h-priceMin)/binSize);
-    for(let b=Math.max(0,lo); b<Math.min(bins,hi+1); b++){
-      profile[b] += volumes[i]/(hi-lo+1);
-    }
-  });
-  let maxVol=0, pocBin=0;
-  profile.forEach((v,i)=>{ if(v>maxVol){maxVol=v;pocBin=i;} });
-  const poc = priceMin + (pocBin+0.5)*binSize;
-  return { poc, priceMin, priceMax, profile };
-}
-
-// ── Candle Pattern 감지 ──
-function detectCandlePattern(kdata) {
-  const n = kdata.length;
-  if(n<3) return { name:'None', signal:'neu', score:0 };
-  const c  = kdata[n-1]; // 현재 캔들
-  const p1 = kdata[n-2]; // 1개 전
-  const p2 = kdata[n-3]; // 2개 전
-
-  const body    = c=>Math.abs(c.c-c.o);
-  const range   = c=>c.h-c.l;
-  const isBull  = c=>c.c>c.o;
-  const isBear  = c=>c.c<c.o;
-  const upperW  = c=>isBull(c)?c.h-c.c:c.h-c.o;
-  const lowerW  = c=>isBull(c)?c.o-c.l:c.c-c.l;
-
-  // 망치형 (Hammer) — 하락 후 저점에서 긴 아래꼬리
-  if(lowerW(c)>=body(c)*2 && upperW(c)<=body(c)*0.5 && isBull(c)){
-    return { name:'망치형', signal:'bull', score:2 };
-  }
-  // 슈팅스타 — 상승 후 고점에서 긴 위꼬리
-  if(upperW(c)>=body(c)*2 && lowerW(c)<=body(c)*0.5 && isBear(c)){
-    return { name:'슈팅스타', signal:'bear', score:-2 };
-  }
-  // 불리시 인걸핑
-  if(isBear(p1) && isBull(c) && c.o<p1.c && c.c>p1.o){
-    return { name:'불리시 인걸핑', signal:'bull', score:3 };
-  }
-  // 베어리시 인걸핑
-  if(isBull(p1) && isBear(c) && c.o>p1.c && c.c<p1.o){
-    return { name:'베어리시 인걸핑', signal:'bear', score:-3 };
-  }
-  // 모닝스타
-  if(isBear(p2) && body(p1)<body(p2)*0.3 && isBull(c) && c.c>p2.o){
-    return { name:'모닝스타', signal:'bull', score:4 };
-  }
-  // 이브닝스타
-  if(isBull(p2) && body(p1)<body(p2)*0.3 && isBear(c) && c.c<p2.o){
-    return { name:'이브닝스타', signal:'bear', score:-4 };
-  }
-  // 도지
-  if(body(c)<range(c)*0.1){
-    return { name:'도지', signal:'neu', score:0 };
-  }
-  return { name:'None', signal:'neu', score:0 };
 }
 
 // ════════════════════════════════════════
@@ -727,242 +547,136 @@ function generateSignal(kdata) {
   const n = closes.length;
   const last = n-1;
 
-  // 기존 지표
-  const rsi    = calcRSI(closes, 14);
-  const macd   = calcMACD(closes);
-  const bb     = calcBollinger(closes, 20, 2);
-  const ma20   = calcSMA(closes, 20);
-  const ma50   = calcSMA(closes, 50);
-  const ma200  = calcSMA(closes, 200);
-  const ema12  = calcEMA(closes, 12);
-  const ema26  = calcEMA(closes, 26);
-  const volMA  = calcVolumeMA(volumes, 20);
+  const rsi = calcRSI(closes, 14);
+  const macd = calcMACD(closes);
+  const bb = calcBollinger(closes, 20, 2);
+  const ma20 = calcSMA(closes, 20);
+  const ma50 = calcSMA(closes, 50);
+  const ma200 = calcSMA(closes, 200);
+  const ema12 = calcEMA(closes, 12);
+  const ema26 = calcEMA(closes, 26);
+  const volMA = calcVolumeMA(volumes, 20);
 
-  // 신규 지표
-  const adxData    = calcADX(kdata, 14);
-  const stochRSI   = calcStochRSI(closes, 14, 14);
-  const obv        = calcOBV(kdata);
-  const fib        = calcFibonacci(kdata, 10);
-  const vp         = calcVolumeProfile(kdata, 30);
-  const candle     = detectCandlePattern(kdata);
-
-  const price        = closes[last];
-  const rsiVal       = rsi[last];
-  const macdVal      = macd.macdLine[last];
-  const macdSig      = macd.signalLine[last];
-  const macdHist     = macd.histogram[last];
+  const price = closes[last];
+  const rsiVal = rsi[last];
+  const macdVal = macd.macdLine[last];
+  const macdSig = macd.signalLine[last];
+  const macdHist = macd.histogram[last];
   const macdHistPrev = macd.histogram[last-1];
-  const bbUpper      = bb.upper[last];
-  const bbLower      = bb.lower[last];
-  const bbMid        = bb.mid[last];
-  const ma20Val      = ma20[last];
-  const ma50Val      = ma50[last];
-  const ma200Val     = ma200[last];
-  const ema12Val     = ema12[last];
-  const ema26Val     = ema26[last];
-  const volNow       = volumes[last];
-  const volMAVal     = volMA[last];
-  const adxVal       = adxData.adx[adxData.adx.length-1];
-  const stochVal     = stochRSI[stochRSI.length-1];
-  const obvNow       = obv[last];
-  const obvPrev      = obv[last-5];
-  const poc          = vp?.poc;
+  const bbUpper = bb.upper[last];
+  const bbLower = bb.lower[last];
+  const bbMid = bb.mid[last];
+  const ma20Val = ma20[last];
+  const ma50Val = ma50[last];
+  const ma200Val = ma200[last];
+  const ema12Val = ema12[last];
+  const ema26Val = ema26[last];
+  const volNow = volumes[last];
+  const volMAVal = volMA[last];
 
+  // 점수 기반 신호 (+: 매수, -: 매도)
   let score = 0;
-  const reasons = [], bearReasons = [];
+  const reasons = [];
+  const bearReasons = [];
 
-  // ── RSI ──
-  if (rsiVal < 30)      { score += 2; reasons.push('RSI 과SELL(' + rsiVal.toFixed(1) + ')'); }
-  else if (rsiVal < 45) { score += 1; reasons.push('RSI Low Zone (' + rsiVal.toFixed(1) + ')'); }
-  else if (rsiVal > 70) { score -= 2; bearReasons.push('RSI 과BUY(' + rsiVal.toFixed(1) + ')'); }
-  else if (rsiVal > 60) { score -= 1; bearReasons.push('RSI High Zone (' + rsiVal.toFixed(1) + ')'); }
+  // RSI
+  if (rsiVal < 30) { score += 2; reasons.push('RSI 과매도(' + rsiVal.toFixed(1) + ')'); }
+  else if (rsiVal < 45) { score += 1; reasons.push('RSI 저점권(' + rsiVal.toFixed(1) + ')'); }
+  else if (rsiVal > 70) { score -= 2; bearReasons.push('RSI 과매수(' + rsiVal.toFixed(1) + ')'); }
+  else if (rsiVal > 60) { score -= 1; bearReasons.push('RSI 고점권(' + rsiVal.toFixed(1) + ')'); }
 
-  // ── MACD ──
+  // MACD
   if (macdVal !== null && macdSig !== null) {
-    if (macdVal > macdSig && macdHistPrev < 0 && macdHist > 0) { score += 2; reasons.push('MACD Golden Cross'); }
-    else if (macdVal > macdSig) { score += 1; reasons.push('MACD Bullish'); }
-    else if (macdVal < macdSig && macdHistPrev > 0 && macdHist < 0) { score -= 2; bearReasons.push('MACD Death Cross'); }
-    else if (macdVal < macdSig) { score -= 1; bearReasons.push('MACD Bearish'); }
+    if (macdVal > macdSig && macdHistPrev < 0 && macdHist > 0) { score += 2; reasons.push('MACD 골든크로스'); }
+    else if (macdVal > macdSig) { score += 1; reasons.push('MACD 강세'); }
+    else if (macdVal < macdSig && macdHistPrev > 0 && macdHist < 0) { score -= 2; bearReasons.push('MACD 데드크로스'); }
+    else if (macdVal < macdSig) { score -= 1; bearReasons.push('MACD 약세'); }
   }
 
-  // ── 볼린저 ──
-  if (bbLower && price <= bbLower)      { score += 2; reasons.push('BB Lower Band Break'); }
-  else if (bbUpper && price >= bbUpper) { score -= 2; bearReasons.push('BB Upper Band Break'); }
-  else if (bbMid && price > bbMid)      { score += 1; reasons.push('Above BB Midline'); }
-  else if (bbMid && price < bbMid)      { score -= 1; bearReasons.push('Below BB Midline'); }
+  // Bollinger
+  if (bbLower && price <= bbLower) { score += 2; reasons.push('볼린저 하단 이탈(반등 가능)'); }
+  else if (bbUpper && price >= bbUpper) { score -= 2; bearReasons.push('볼린저 상단 이탈(조정 가능)'); }
+  else if (bbMid && price > bbMid) { score += 1; reasons.push('볼린저 중심선 위'); }
+  else if (bbMid && price < bbMid) { score -= 1; bearReasons.push('볼린저 중심선 아래'); }
 
-  // ── 이동평균 ──
+  // 이동평균
   if (ma20Val && ma50Val) {
-    if (price > ma20Val && price > ma50Val) { score += 1; reasons.push('Above MA20&MA50'); }
-    else if (price < ma20Val && price < ma50Val) { score -= 1; bearReasons.push('Below MA20&MA50'); }
-    if (ma20Val > ma50Val) { score += 1; reasons.push('MA20>MA50 Uptrend'); }
-    else { score -= 1; bearReasons.push('MA20<MA50 Downtrend'); }
+    if (price > ma20Val && price > ma50Val) { score += 1; reasons.push('MA20·MA50 상회'); }
+    else if (price < ma20Val && price < ma50Val) { score -= 1; bearReasons.push('MA20·MA50 하회'); }
+    if (ma20Val > ma50Val) { score += 1; reasons.push('MA20 > MA50 (상승추세)'); }
+    else { score -= 1; bearReasons.push('MA20 < MA50 (하락추세)'); }
   }
   if (ma200Val) {
-    if (price > ma200Val) { score += 1; reasons.push('Above MA200 (Long-term Uptrend)'); }
-    else { score -= 1; bearReasons.push('Below MA200 (Long-term Downtrend)'); }
+    if (price > ma200Val) { score += 1; reasons.push('장기 MA200 상회'); }
+    else { score -= 1; bearReasons.push('장기 MA200 하회'); }
   }
 
-  // ── 거래량 ──
+  // 거래량
   if (volMAVal && volNow > volMAVal * 1.5) {
-    if (score > 0) { score += 1; reasons.push('Volume Surge (Trend Confirmed)'); }
-    else { score -= 1; bearReasons.push('Volume Surge (Bearish Pressure)'); }
+    if (score > 0) { score += 1; reasons.push('거래량 급증(추세 확인)'); }
+    else { score -= 1; bearReasons.push('거래량 급증(하락 가속)'); }
   }
 
-  // ── ADX (추세 강도) ──
-  let adxBoost = 1.0;
-  if (adxVal !== null && adxVal !== undefined) {
-    if (adxVal < 20) {
-      // 횡보장 — 점수 40% 감쇄
-      adxBoost = 0.6;
-      bearReasons.push('ADX ' + adxVal.toFixed(0) + ' (Ranging, Signal Weakened)');
-    } else if (adxVal >= 25) {
-      score += (score > 0 ? 1 : score < 0 ? -1 : 0);
-      reasons.push('ADX ' + adxVal.toFixed(0) + ' (Strong Trend)');
-    }
-  }
-
-  // ── 스토캐스틱 RSI ──
-  if (stochVal !== null && stochVal !== undefined) {
-    if (stochVal < 20)      { score += 1; reasons.push('StochRSI 과SELL'); }
-    else if (stochVal > 80) { score -= 1; bearReasons.push('StochRSI 과BUY'); }
-  }
-
-  // ── OBV ──
-  if (obvNow !== undefined && obvPrev !== undefined) {
-    if (obvNow > obvPrev * 1.05) { score += 1; reasons.push('OBV 상승(BUY세 증가)'); }
-    else if (obvNow < obvPrev * 0.95) { score -= 1; bearReasons.push('OBV 하락(SELL세 증가)'); }
-  }
-
-  // ── Candle Pattern ──
-  if (candle.score !== 0) {
-    score += candle.score;
-    if (candle.score > 0) reasons.push('Candle Pattern: ' + candle.name);
-    else bearReasons.push('Candle Pattern: ' + candle.name);
-  }
-
-  // ── Fibonacci ──
-  let fibLevel = null, fibNearLevel = null;
-  if (fib) {
-    const lvls = Object.entries(fib.levels);
-    let minDist = Infinity;
-    lvls.forEach(([pct, val]) => {
-      const dist = Math.abs(price - val) / price;
-      if (dist < minDist) { minDist = dist; fibNearLevel = pct; fibLevel = val; }
-    });
-    if (minDist < 0.005) { // 0.5% 이내면 레벨 근처
-      if (fibNearLevel === '61.8' || fibNearLevel === '50') {
-        score += (fib.trend==='up' ? 2 : -2);
-        if (fib.trend==='up') reasons.push('Fib ' + fibNearLevel + '% 지지 근처');
-        else bearReasons.push('Fib ' + fibNearLevel + '% 저항 근처');
-      } else if (fibNearLevel === '38.2' || fibNearLevel === '23.6') {
-        score += (fib.trend==='up' ? 1 : -1);
-        if (fib.trend==='up') reasons.push('Fib ' + fibNearLevel + '% 근처');
-        else bearReasons.push('Fib ' + fibNearLevel + '% 근처');
-      }
-    }
-  }
-
-  // ── POC (거래량 프로파일) ──
-  if (poc) {
-    const pocDist = Math.abs(price - poc) / price;
-    if (pocDist < 0.003) {
-      // POC 바로 위 or 아래
-      if (price >= poc) { score += 1; reasons.push('Above POC Support'); }
-      else { score -= 1; bearReasons.push('Below POC Resistance'); }
-    } else if (price > poc) { score += 1; reasons.push('Above POC (Buy Dominant)'); }
-    else { score -= 1; bearReasons.push('Below POC (Sell Dominant)'); }
-  }
-
-  // ADX 횡보장 감쇄 적용
-  score = Math.round(score * adxBoost);
-
-  // ── 포지션 결정 (최대 ±15점) ──
+  // 포지션 결정
   let position, posName, confidence, leverageRec;
   const absScore = Math.abs(score);
 
-  if      (score >= 8)  { position='LONG';  posName='롱 (LONG)';  confidence=Math.min(55+absScore*3, 93); leverageRec='3x ~ 5x'; }
-  else if (score >= 5)  { position='LONG';  posName='롱 (LONG)';  confidence=Math.min(50+absScore*3, 83); leverageRec='2x ~ 3x'; }
-  else if (score >= 3)  { position='LONG';  posName='롱 (LONG)';  confidence=Math.min(50+absScore*2, 72); leverageRec='1x ~ 2x'; }
-  else if (score <= -8) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(55+absScore*3, 93); leverageRec='3x ~ 5x'; }
-  else if (score <= -5) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(50+absScore*3, 83); leverageRec='2x ~ 3x'; }
-  else if (score <= -3) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(50+absScore*2, 72); leverageRec='1x ~ 2x'; }
-  else                  { position='HOLD';  posName='관망 (HOLD)'; confidence=50; leverageRec='0x'; }
+  if (score >= 4) { position='LONG'; posName='롱 (LONG)'; confidence=Math.min(50+absScore*7, 92); leverageRec='3x ~ 5x'; }
+  else if (score >= 2) { position='LONG'; posName='롱 (LONG)'; confidence=Math.min(50+absScore*5, 80); leverageRec='2x ~ 3x'; }
+  else if (score <= -4) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(50+absScore*7, 92); leverageRec='3x ~ 5x'; }
+  else if (score <= -2) { position='SHORT'; posName='숏 (SHORT)'; confidence=Math.min(50+absScore*5, 80); leverageRec='2x ~ 3x'; }
+  else { position='HOLD'; posName='관망 (HOLD)'; confidence=50; leverageRec='0x'; }
 
-  // ── 가격 계산 (Fibonacci + POC 반영) ──
-  const atr    = calcATR(kdata, 14);
+  // 가격 계산
+  const atr = calcATR(kdata, 14);
   const atrVal = atr[last] || price * 0.02;
-  const fmt    = v => '$' + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   let entryPrice, targetPrice, stopLoss, rrRatio;
-
   if (position === 'LONG') {
-    // 진입가: Fibonacci 61.8% or POC 중 가까운 쪽, 없으면 Price
     entryPrice = price;
-    if (fib && fib.levels['61.8'] && fib.levels['61.8'] < price * 1.005) {
-      entryPrice = fib.levels['61.8'];
-    } else if (poc && poc < price * 1.002) {
-      entryPrice = poc;
-    }
-    // 목표가: Fibonacci 0%(고점) 우선, 없으면 ATR×3
-    targetPrice = fib ? fib.levels['0'] : price + atrVal * 3;
-    if (targetPrice <= price) targetPrice = price + atrVal * 3;
-    // 손절가: Fibonacci 78.6% or POC 아래 ATR×1.5
-    stopLoss = fib ? fib.levels['78.6'] : price - atrVal * 1.5;
-    if (stopLoss >= price) stopLoss = price - atrVal * 1.5;
+    targetPrice = price + atrVal * 3;
+    stopLoss = price - atrVal * 1.5;
+    rrRatio = '1 : 2.0';
   } else if (position === 'SHORT') {
     entryPrice = price;
-    if (fib && fib.levels['38.2'] && fib.levels['38.2'] > price * 0.995) {
-      entryPrice = fib.levels['38.2'];
-    } else if (poc && poc > price * 0.998) {
-      entryPrice = poc;
-    }
-    targetPrice = fib ? fib.levels['100'] : price - atrVal * 3;
-    if (targetPrice >= price) targetPrice = price - atrVal * 3;
-    stopLoss = fib ? fib.levels['23.6'] : price + atrVal * 1.5;
-    if (stopLoss <= price) stopLoss = price + atrVal * 1.5;
+    targetPrice = price - atrVal * 3;
+    stopLoss = price + atrVal * 1.5;
+    rrRatio = '1 : 2.0';
   } else {
-    entryPrice  = price;
+    entryPrice = price;
     targetPrice = null;
-    stopLoss    = null;
-  }
-
-  // R:R 계산
-  if (targetPrice && stopLoss) {
-    const reward = Math.abs(targetPrice - entryPrice);
-    const risk   = Math.abs(stopLoss - entryPrice);
-    const rr     = risk > 0 ? (reward/risk).toFixed(1) : '—';
-    rrRatio = '1 : ' + rr;
-  } else {
+    stopLoss = null;
     rrRatio = '—';
   }
 
+  const fmt = v => '$' + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
   const mainReason = (position==='LONG' ? reasons : bearReasons).slice(0,3).join(' · ') || '지표 혼조';
+
+  // 시간봉 전략
   const tfStratMap = { '1m':'스캘핑','5m':'단타','15m':'단타','1h':'스윙','4h':'스윙','1d':'포지션' };
-  const holdMap    = { '1m':'5~30분','5m':'30분~2시간','15m':'1~4시간','1h':'1~3일','4h':'3~7일','1d':'1~4주' };
+  const holdMap = { '1m':'5~30분','5m':'30분~2시간','15m':'1~4시간','1h':'1~3일','4h':'3~7일','1d':'1~4주' };
 
   return {
-    position, posName, confidence, leverageRec,
-    entryPrice:  fmt(entryPrice),
+    position, posName, confidence,
+    leverageRec,
+    entryPrice: fmt(entryPrice),
     targetPrice: targetPrice ? fmt(targetPrice) : '—',
-    stopLoss:    stopLoss    ? fmt(stopLoss)    : '—',
-    rrRatio, mainReason, score,
+    stopLoss: stopLoss ? fmt(stopLoss) : '—',
+    rrRatio,
+    mainReason,
+    score,
     indicators: {
-      rsi:     { val: rsiVal?.toFixed(1), sentiment: rsiVal<30?'bull':rsiVal>70?'bear':'neu', sub: rsiVal<30?'과SELL':rsiVal>70?'과BUY':'중립' },
-      macd:    { val: macdVal?.toFixed(2), sentiment: macdVal>macdSig?'bull':'bear', sub: macdVal>macdSig?'강세':'약세' },
-      bbPos:   { val: bbMid?((price-bbMid)/(bbUpper-bbMid)*100).toFixed(0)+'%':'—', sentiment: price<bbLower?'bull':price>bbUpper?'bear':'neu', sub: price<bbLower?'Lower Break':price>bbUpper?'Upper Break':'Mid Zone' },
-      ma:      { val: ma20Val?fmt(ma20Val):'—', sentiment: price>ma20Val?'bull':'bear', sub: price>ma20Val?'상회':'하회' },
+      rsi: { val: rsiVal?.toFixed(1), sentiment: rsiVal<30?'bull':rsiVal>70?'bear':'neu', sub: rsiVal<30?'과매도':rsiVal>70?'과매수':'중립' },
+      macd: { val: macdVal?.toFixed(2), sentiment: macdVal>macdSig?'bull':'bear', sub: macdVal>macdSig?'강세':'약세' },
+      bbPos: { val: bbMid ? ((price-bbMid)/(bbUpper-bbMid)*100).toFixed(0)+'%' : '—', sentiment: price<bbLower?'bull':price>bbUpper?'bear':'neu', sub: price<bbLower?'하단 이탈':price>bbUpper?'상단 이탈':'중간대' },
+      ma: { val: ma20Val?fmt(ma20Val):'—', sentiment: price>ma20Val?'bull':'bear', sub: price>ma20Val?'상회':'하회' },
       macd200: { val: ma200Val?fmt(ma200Val):'—', sentiment: price>ma200Val?'bull':'bear', sub: price>ma200Val?'장기 상승':'장기 하락' },
-      vol:     { val: volMAVal?(volNow/volMAVal*100).toFixed(0)+'%':'—', sentiment: volNow>volMAVal*1.3?'bull':volNow<volMAVal*0.7?'bear':'neu', sub: volNow>volMAVal*1.3?'평균 이상':'평균 이하' },
-      score:   { val: (score>0?'+':'')+score, sentiment: score>0?'bull':score<0?'bear':'neu', sub: 'Total Score(/15)' },
-      adx:     { val: adxVal?adxVal.toFixed(0):'—', sentiment: adxVal>=25?'bull':adxVal<20?'bear':'neu', sub: adxVal>=25?'강한 추세':adxVal<20?'횡보장':'약한 추세' },
-      stochRsi:{ val: stochVal?stochVal.toFixed(0):'—', sentiment: stochVal<20?'bull':stochVal>80?'bear':'neu', sub: stochVal<20?'과SELL':stochVal>80?'과BUY':'중립' },
-      fib:     { val: fibNearLevel?fibNearLevel+'%':'—', sentiment: fib&&fib.trend==='up'?'bull':'bear', sub: fibNearLevel?'피보 근처':'레벨 없음' },
-      poc:     { val: poc?fmt(poc):'—', sentiment: poc&&price>poc?'bull':'bear', sub: poc&&price>poc?'POC 상회':'POC 하회' },
-      candle:  { val: candle.name, sentiment: candle.signal, sub: candle.score>0?'BUY신호':candle.score<0?'SELL신호':'중립' },
-      ema:     { val: ema12Val?fmt(ema12Val):'—', sentiment: ema12Val>ema26Val?'bull':'bear', sub: ema12Val>ema26Val?'Short-term Up':'Short-term Down' },
+      vol: { val: volMAVal?(volNow/volMAVal*100).toFixed(0)+'%':'—', sentiment: volNow>volMAVal*1.3?'bull':volNow<volMAVal*0.7?'bear':'neu', sub: volNow>volMAVal*1.3?'평균 이상':'평균 이하' },
+      score: { val: (score>0?'+':'')+score, sentiment: score>0?'bull':score<0?'bear':'neu', sub: '종합 점수' },
+      ema: { val: ema12Val?fmt(ema12Val):'—', sentiment: ema12Val>ema26Val?'bull':'bear', sub: ema12Val>ema26Val?'단기 상승':'단기 하락' },
     },
-    tfStrategy:    tfStratMap[tf] || '단타',
+    tfStrategy: tfStratMap[tf] || '단타',
     holdingPeriod: holdMap[tf] || '—',
     analysis: buildAnalysis(position, reasons, bearReasons, rsiVal, macdVal, macdSig, price, bbLower, bbUpper, ma20Val, ma50Val),
     strategy: buildStrategy(position, fmt(entryPrice), targetPrice?fmt(targetPrice):'—', stopLoss?fmt(stopLoss):'—'),
@@ -982,15 +696,15 @@ function calcATR(kdata, period=14) {
 function buildAnalysis(pos, bull, bear, rsi, macdV, macdS, price, bbL, bbU, ma20, ma50) {
   const bullStr = bull.slice(0,3).join(', ');
   const bearStr = bear.slice(0,3).join(', ');
-  if (pos==='LONG') return `현재 ${bullStr} 신호가 감지되어 BUY 우위 상황입니다. RSI ${rsi?.toFixed(1)}으로 ${rsi<30?'과SELL권에서 반등 가능성이 높습니다':'상승 모멘텀이 유지되고 있습니다'}. MACD는 ${macdV>macdS?'시그널선 위에서 강세 흐름을 나타냅니다':'크로스 이후 상승 전환 신호입니다'}. ${bearStr?'단, '+bearStr+' 리스크도 존재하므로 Stop Loss을 반드시 설정하세요.':'지표 종합 시 BUY 진입이 유리한 구간입니다.'}`;
-  if (pos==='SHORT') return `현재 ${bearStr} 신호가 감지되어 SELL 우위 상황입니다. RSI ${rsi?.toFixed(1)}으로 ${rsi>70?'과BUY권에서 조정 가능성이 높습니다':'하락 모멘텀이 강화되고 있습니다'}. MACD는 ${macdV<macdS?'시그널선 아래에서 약세 흐름입니다':'데드크로스 이후 하락 전환 신호입니다'}. ${bullStr?'단, '+bullStr+' 반등 신호도 있으니 Stop Loss을 철저히 지키세요.':'지표 종합 시 숏 진입이 유리한 구간입니다.'}`;
-  return `Mixed BUY/SELL signals with no clear direction. Bullish: ${bullStr||'None'}. 약세 신호: ${bearStr||'None'}. 변동성이 낮고 방향이 불분명하므로 추가 캔들을 관찰 후 진입을 결정하는 것이 좋습니다.`;
+  if (pos==='LONG') return `현재 ${bullStr} 신호가 감지되어 매수 우위 상황입니다. RSI ${rsi?.toFixed(1)}으로 ${rsi<30?'과매도권에서 반등 가능성이 높습니다':'상승 모멘텀이 유지되고 있습니다'}. MACD는 ${macdV>macdS?'시그널선 위에서 강세 흐름을 나타냅니다':'크로스 이후 상승 전환 신호입니다'}. ${bearStr?'단, '+bearStr+' 리스크도 존재하므로 손절 라인을 반드시 설정하세요.':'지표 종합 시 매수 진입이 유리한 구간입니다.'}`;
+  if (pos==='SHORT') return `현재 ${bearStr} 신호가 감지되어 매도 우위 상황입니다. RSI ${rsi?.toFixed(1)}으로 ${rsi>70?'과매수권에서 조정 가능성이 높습니다':'하락 모멘텀이 강화되고 있습니다'}. MACD는 ${macdV<macdS?'시그널선 아래에서 약세 흐름입니다':'데드크로스 이후 하락 전환 신호입니다'}. ${bullStr?'단, '+bullStr+' 반등 신호도 있으니 손절 라인을 철저히 지키세요.':'지표 종합 시 숏 진입이 유리한 구간입니다.'}`;
+  return `현재 매수·매도 신호가 혼재되어 명확한 방향성이 없는 상황입니다. 강세 신호: ${bullStr||'없음'}. 약세 신호: ${bearStr||'없음'}. 변동성이 낮고 방향이 불분명하므로 추가 캔들을 관찰 후 진입을 결정하는 것이 좋습니다.`;
 }
 
 function buildStrategy(pos, entry, target, stop) {
-  if (pos==='LONG') return `Consider scaling in near ${entry}. Take 50% profit at ${target}, then trail the rest. Exit immediately if price breaks ${stop} to limit losses.`;
-  if (pos==='SHORT') return `Enter SHORT near ${entry} targeting ${target}. Set stop loss at ${stop}, and close half the position when price reaches midway to reduce risk.`;
-  return `현재는 관망을 권장합니다. 명확한 돌파 or 이탈 캔들이 나올 때까지 포지션을 보유하지 말고 기다리세요. RSI 30 이하 or 70 이상, MACD 크로스 발생 시 진입을 검토하세요.`;
+  if (pos==='LONG') return `${entry} 근처에서 분할 진입을 추천합니다. 목표가 ${target}에서 50% 익절 후 나머지는 추세 추종으로 유지하세요. 손절 ${stop} 이탈 시 즉시 청산하며 손실을 제한합니다.`;
+  if (pos==='SHORT') return `${entry} 근처에서 숏 진입 시 목표가 ${target}까지 목표합니다. 손절은 ${stop} 돌파 시로 설정하고, 목표가 절반 도달 시 포지션 일부 청산으로 리스크를 줄이세요.`;
+  return `현재는 관망을 권장합니다. 명확한 돌파 또는 이탈 캔들이 나올 때까지 포지션을 보유하지 말고 기다리세요. RSI 30 이하 또는 70 이상, MACD 크로스 발생 시 진입을 검토하세요.`;
 }
 
 function buildRisk(pos, rsi, score) {
@@ -998,8 +712,8 @@ function buildRisk(pos, rsi, score) {
   if (Math.abs(score)<4) risks.push('신호 강도가 약하여 변동성에 취약합니다');
   if (rsi>65 && pos==='LONG') risks.push('RSI 고점권으로 단기 조정 가능성 있음');
   if (rsi<35 && pos==='SHORT') risks.push('RSI 저점권으로 단기 반등 가능성 있음');
-  risks.push('Always respect your stop loss when using leverage.');
-  risks.push('This signal is for reference only. All investment decisions are your own responsibility.');
+  risks.push('레버리지 사용 시 손절 라인을 반드시 지키세요');
+  risks.push('본 신호는 참고용이며 실제 투자는 본인 판단으로 하세요');
   return risks.slice(0,3).join('. ') + '.';
 }
 
@@ -1009,7 +723,7 @@ function buildRisk(pos, rsi, score) {
 function renderAnalysis(sig, ticker) {
   const posCls = sig.position==='LONG'?'long':sig.position==='SHORT'?'short':'hold';
 
-  const entryLabel = 'Suggested Entry';
+  const entryLabel = '권장 진입가';
   const html = `
     <!-- Hero -->
     <div class="sig-hero ${posCls}">
@@ -1020,19 +734,19 @@ function renderAnalysis(sig, ticker) {
           <div class="sig-reason">${sig.mainReason}</div>
         </div>
         <div class="sig-right">
-          <div class="sig-lev-lbl">Suggested Leverage</div>
+          <div class="sig-lev-lbl">권장 레버리지</div>
           <div class="sig-lev-val">${sig.leverageRec}</div>
         </div>
       </div>
       <div class="sig-hero-bottom">
         <div style="flex-shrink:0">
-          <div class="sig-entry-lbl">Suggested Entry</div>
+          <div class="sig-entry-lbl">권장 진입가</div>
           <div class="sig-entry-val ${posCls}" style="${isTrial?'filter:blur(6px);user-select:none;':''}">${isTrial?'$00,000.00':sig.entryPrice}</div>
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.08);height:40px;flex-shrink:0"></div>
         <div class="sig-conf-wrap">
           <div class="sig-conf-lbl">
-            <span>Confidence</span>
+            <span>신뢰도</span>
             <span style="font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text)">${sig.confidence}%</span>
           </div>
           <div class="sig-conf-bar">
@@ -1040,7 +754,7 @@ function renderAnalysis(sig, ticker) {
           </div>
         </div>
         <div style="flex-shrink:0;text-align:right">
-          <div class="sig-entry-lbl">R:R Ratio</div>
+          <div class="sig-entry-lbl">R:R 비율</div>
           <div style="font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--long)">${sig.rrRatio}</div>
         </div>
       </div>
@@ -1048,47 +762,47 @@ function renderAnalysis(sig, ticker) {
 
     <!-- Timeframe -->
     <div class="sum-row" style="margin-bottom:10px">
-      <div class="sum-card"><div class="sum-lbl">Timeframe</div><div class="sum-val neu" style="font-size:17px">${document.getElementById('tfSelect').options[document.getElementById('tfSelect').selectedIndex].text}</div></div>
-      <div class="sum-card"><div class="sum-lbl">Strategy Type</div><div class="sum-val neu" style="font-size:17px">${sig.tfStrategy}</div></div>
-      <div class="sum-card"><div class="sum-lbl">Holding Period</div><div class="sum-val neu" style="font-size:17px">${sig.holdingPeriod}</div></div>
+      <div class="sum-card"><div class="sum-lbl">시간봉</div><div class="sum-val neu" style="font-size:17px">${document.getElementById('tfSelect').options[document.getElementById('tfSelect').selectedIndex].text}</div></div>
+      <div class="sum-card"><div class="sum-lbl">전략 유형</div><div class="sum-val neu" style="font-size:17px">${sig.tfStrategy}</div></div>
+      <div class="sum-card"><div class="sum-lbl">예상 보유</div><div class="sum-val neu" style="font-size:17px">${sig.holdingPeriod}</div></div>
     </div>
 
     <!-- Prices (위로 올림) -->
-    <div class="sec-label">Price Levels</div>
+    <div class="sec-label">가격 정보</div>
     <div class="price-row">
       <div class="price-card">
         <div class="price-tag ${sig.position==='LONG'?'buy':sig.position==='SHORT'?'sell':'stop'}">${entryLabel}</div>
         <div class="price-val" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
           ${isTrial ? '$00,000.00' : sig.entryPrice}
         </div>
-        <div class="price-note">Immediate entry at current market price</div>
+        <div class="price-note">현재 시장가 기준 즉시 진입</div>
       </div>
       <div class="price-card">
-        <div class="price-tag sell">Take Profit</div>
-        <div class="price-val" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
+        <div class="price-tag ${sig.position==='LONG'?'buy':sig.position==='SHORT'?'sell':'stop'}">권장 목표가</div>
+        <div class="price-val ${posCls}" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
           ${isTrial ? '$00,000.00' : sig.targetPrice}
         </div>
-        <div class="price-note">Take profit target (ATR x3)</div>
+        <div class="price-note">ATR 3배 기준 목표가</div>
       </div>
       <div class="price-card">
-        <div class="price-tag stop">Stop Loss</div>
+        <div class="price-tag stop">손절 라인</div>
         <div class="price-val" style="${isTrial?'filter:blur(6px);user-select:none;letter-spacing:2px;':''}">
           ${isTrial ? '$00,000.00' : sig.stopLoss}
         </div>
-        <div class="price-note">Stop loss level (ATR x1.5)</div>
+        <div class="price-note">ATR 1.5배 기준 손절가</div>
       </div>
     </div>
 
     <!-- Summary (아래로 내림) -->
-    <div class="sec-label">Signal Summary</div>
+    <div class="sec-label">신호 요약</div>
     <div class="sum-row">
       <div class="sum-card">
-        <div class="sum-lbl">Signal</div>
+        <div class="sum-lbl">매매 신호</div>
         <div class="sum-val ${sig.position==='LONG'?'pos':sig.position==='SHORT'?'neg':'neu'}" style="font-size:22px">
-          ${sig.position==='LONG'?'BUY':sig.position==='SHORT'?'SELL':'HOLD'}
+          ${sig.position==='LONG'?'매수':sig.position==='SHORT'?'매도':'홀딩'}
           <span style="font-size:14px;color:var(--text2);margin-left:6px">[${sig.confidence}%]</span>
         </div>
-        <div class="sum-sub">Total Score: ${sig.score>0?'+':''}${sig.score}</div>
+        <div class="sum-sub">종합 점수: ${sig.score>0?'+':''}${sig.score}</div>
       </div>
       <div class="sum-card">
         <div class="sum-lbl">RSI (14)</div>
@@ -1103,17 +817,17 @@ function renderAnalysis(sig, ticker) {
     </div>
 
     <!-- Indicators -->
-    <div class="sec-label">Technical Indicators</div>
+    <div class="sec-label">기술 지표</div>
     <div class="${isTrial?'trial-blur':''}" style="${isTrial?'border-radius:var(--r);overflow:hidden;':''}">
     <div class="ind-grid">
       ${Object.entries({
         'RSI 14': sig.indicators.rsi,
         'MACD': sig.indicators.macd,
-        'BB Position': sig.indicators.bbPos,
+        '볼린저 위치': sig.indicators.bbPos,
         'MA 20': sig.indicators.ma,
         'MA 200': sig.indicators.macd200,
-        'Volume Ratio': sig.indicators.vol,
-        'Total Score': sig.indicators.score,
+        '거래량 비율': sig.indicators.vol,
+        '종합 점수': sig.indicators.score,
         'EMA 12': sig.indicators.ema,
       }).map(([name, ind]) => `
         <div class="ind-card">
@@ -1128,30 +842,30 @@ function renderAnalysis(sig, ticker) {
     </div>
 
     <!-- Analysis -->
-    <div class="sec-label">AI Analysis</div>
+    <div class="sec-label">AI 분석</div>
     <div class="${isTrial?'trial-blur':''}" style="${isTrial?'border-radius:var(--r);':''}" >
     <div class="ana-card">
-      <div class="ana-head"><div class="ana-dot" style="background:var(--blue)"></div>Analysis Summary</div>
+      <div class="ana-head"><div class="ana-dot" style="background:var(--blue)"></div>종합 분석 근거</div>
       <div class="ana-body">${sig.analysis}</div>
     </div>
     <div class="ana-card">
-      <div class="ana-head"><div class="ana-dot" style="background:var(--long)"></div>Entry Strategy</div>
+      <div class="ana-head"><div class="ana-dot" style="background:var(--long)"></div>진입 전략</div>
       <div class="ana-body">${sig.strategy}</div>
     </div>
     <div class="ana-card">
-      <div class="ana-head"><div class="ana-dot" style="background:var(--short)"></div>Risk Warning</div>
+      <div class="ana-head"><div class="ana-dot" style="background:var(--short)"></div>리스크 경고</div>
       <div class="ana-body">${sig.riskWarn}</div>
     </div>
 
     </div>
-    ${isTrial ? '<div style="text-align:center;margin:10px 0 6px"><button class="trial-lock-btn" onclick="showLicenseGate()">🔒 Purchase to unlock full analysis</button></div>' : ''}
-    <div class="disclaimer">※ This analysis is based on automated technical indicator calculations and should not be used as a basis for actual investment decisions. Cryptocurrency trading involves risk of loss, and all investment decisions are your own responsibility.</div>
+    ${isTrial ? '<div style="text-align:center;margin:10px 0 6px"><button class="trial-lock-btn" onclick="showLicenseGate()">🔒 구매하고 전체 분석 보기</button></div>' : ''}
+    <div class="disclaimer">※ 본 분석은 기술적 지표 기반 자동 계산 결과이며, 실제 투자 판단의 근거로 사용할 수 없습니다. 암호화폐 투자에는 원금 손실 위험이 있으며 모든 투자 결정은 본인 책임입니다.</div>
   `;
 
   const trialBanner = isTrial ? `
     <div class="trial-banner">
-      <div class="trial-banner-text">🔍 <span>Free Trial</span> — Entry price, target, stop loss, and full analysis available after purchase</div>
-      <button class="trial-banner-btn" onclick="showLicenseGate()">지금 Buy Now</button>
+      <div class="trial-banner-text">🔍 <span>무료 체험 중</span> — 진입가·목표가·손절가·상세 분석은 구매 후 확인 가능해요</div>
+      <button class="trial-banner-btn" onclick="showLicenseGate()">지금 구매하기</button>
     </div>` : '';
   document.getElementById('analysisArea').innerHTML = trialBanner + html;
 }
@@ -1161,8 +875,8 @@ function renderAnalysis(sig, ticker) {
 // ════════════════════════════════════════
 async function runAnalysis() {
   const btn = document.getElementById('refreshBtn');
-  btn.disabled = true; btn.textContent = 'Analyzing...';
-  document.getElementById('analysisArea').innerHTML = '<div class="loading-state"><div class="spin"></div><div>Calculating indicators...</div></div>';
+  btn.disabled = true; btn.textContent = '분석 중...';
+  document.getElementById('analysisArea').innerHTML = '<div class="loading-state"><div class="spin"></div><div>지표 계산 중...</div></div>';
 
   try {
     const [data, ticker] = await Promise.all([
@@ -1189,11 +903,11 @@ async function runAnalysis() {
   } catch(e) {
     const isLocal = location.protocol === 'file:';
     const msg = isLocal
-      ? '⚠️ Binance API is blocked in local file mode.<br><br>👉 Upload to a server and access via <b>https://</b> for it to work properly!'
-      : '❌ Data load failed: ' + e.message;
+      ? '⚠️ 로컬 파일에서는 바이낸스 API가 차단돼요.<br><br>👉 서버에 업로드 후 <b>https://</b> 주소로 접속하면 정상 작동해요!'
+      : '❌ 데이터 로드 실패: ' + e.message;
     document.getElementById('analysisArea').innerHTML = `<div class="loading-state" style="color:var(--text2);line-height:2">${msg}</div>`;
   }
-  btn.disabled = false; btn.textContent = '🔄 Refresh Analysis';
+  btn.disabled = false; btn.textContent = '🔄 분석 새로고침';
 }
 
 function onSymbolChange() {
@@ -1223,10 +937,10 @@ let chartInited = false;
 async function initChart() {
   // LightweightCharts 로드 확인
   if (typeof LightweightCharts === 'undefined') {
-    document.getElementById('chartWsLbl').textContent = 'Loading library...';
+    document.getElementById('chartWsLbl').textContent = '라이브러리 로드 중...';
     await new Promise(r => setTimeout(r, 800));
     if (typeof LightweightCharts === 'undefined') {
-      document.getElementById('chartWsLbl').textContent = 'Library load failed - please refresh';
+      document.getElementById('chartWsLbl').textContent = '라이브러리 로드 실패 - 새로고침하세요';
       return;
     }
   }
@@ -1279,13 +993,13 @@ async function initChart() {
 async function loadChartData() {
   if (!candleSeries) return;
   const lbl = document.getElementById('chartWsLbl');
-  lbl.textContent = 'Loading chart data...';
+  lbl.textContent = '데이터 로딩 중...';
   try {
     const url = `https://api.binance.com/api/v3/klines?symbol=${chartSymbol}&interval=${chartTf}&limit=500`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const raw = await res.json();
-    if (!Array.isArray(raw) || raw.length === 0) throw new Error('No data');
+    if (!Array.isArray(raw) || raw.length === 0) throw new Error('데이터 없음');
     const candles = raw.map(d => ({
       time: Math.floor(d[0] / 1000),
       open:  parseFloat(d[1]),
@@ -1298,7 +1012,7 @@ async function loadChartData() {
     lbl.textContent = `LIVE · ${chartSymbol} ${chartTf}`;
   } catch(e) {
     console.error('차트 데이터 로드 실패:', e);
-    lbl.textContent = 'Load failed: ' + e.message;
+    lbl.textContent = '로드 실패: ' + e.message;
   }
 }
 
@@ -1314,7 +1028,7 @@ function connectChartWS() {
   };
   chartWs.onclose = () => {
     document.getElementById('chartWsDot').className = 'ws-dot';
-    document.getElementById('chartWsLbl').textContent = 'Disconnected (reconnecting...)';
+    document.getElementById('chartWsLbl').textContent = '연결 끊김 (재시도 중...)';
     // 5초 후 자동 재연결
     setTimeout(() => {
       if (document.getElementById('panel-chart').classList.contains('active')) {
@@ -1323,7 +1037,7 @@ function connectChartWS() {
     }, 5000);
   };
   chartWs.onerror = () => {
-    document.getElementById('chartWsLbl').textContent = 'Connection error';
+    document.getElementById('chartWsLbl').textContent = '연결 오류';
   };
   chartWs.onmessage = e => {
     try {
