@@ -288,9 +288,15 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
   <div style="margin-top:6px;">This service provides information for reference only. All investment decisions are your own responsibility.</div>
 </footer>
 <script is:inline>
+const WP_API = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1';
+
+let proofItems = [];
+let toastPhrases = ['just joined', 'purchased a moment ago', 'recently registered', 'just got started'];
+
 function openPayment(amount, plan) {
   window.location.href = `/api/payment/create?amount=${amount}&plan=${plan}`;
 }
+
 async function loadStats() {
   try {
     const r = await fetch('/api/stats');
@@ -300,30 +306,44 @@ async function loadStats() {
     if (d.renewal_rate) document.getElementById('cnt2').textContent = d.renewal_rate;
   } catch(e) {}
 }
-const proofItems = [
-  {name:'ko***27',plan:'3-Month Plan',price:'$99 USDT',color:'green'},
-  {name:'bit***91',plan:'12-Month Plan',price:'$249 USDT',color:'blue'},
-  {name:'trd***55',plan:'1-Month Plan',price:'$39 USDT',color:'green'},
-  {name:'moon***k',plan:'3-Month Plan',price:'$99 USDT',color:'green'},
-  {name:'jin***42',plan:'12-Month Plan',price:'$249 USDT',color:'blue'},
-  {name:'won***78',plan:'1-Month Plan',price:'$39 USDT',color:'green'},
-  {name:'sol***33',plan:'3-Month Plan',price:'$99 USDT',color:'green'}
-];
-const toastPhrases = ['just joined','purchased a moment ago','recently registered','just got started'];
+
+async function loadProofData() {
+  try {
+    const res = await fetch(WP_API + '/proof-data?_=' + Date.now(), {
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
+    });
+    const data = await res.json();
+    if (Array.isArray(data.items) && data.items.length) {
+      proofItems = data.items.filter(item => item.enabled !== false);
+    }
+    if (Array.isArray(data.toast_phrases) && data.toast_phrases.length) {
+      toastPhrases = data.toast_phrases;
+    }
+  } catch(e) {}
+}
+
 function renderPurchaseList() {
   const list = document.getElementById('purchaseList');
   if (!list) return;
-  proofItems.forEach((p,i) => setTimeout(() => {
+  list.innerHTML = '';
+  proofItems.forEach((p, i) => setTimeout(() => {
     const el = document.createElement('div');
     el.className = 'purchase-item';
-    el.innerHTML = `<div class="pi-dot ${p.color}"></div><div class="pi-name">${p.name} <span style="font-size:13px;color:var(--text2);font-weight:400">purchased</span></div><div class="pi-plan">Plan: <span>${p.plan}</span></div><div class="pi-price">${p.price}</div>`;
+    el.innerHTML = `
+      <div class="pi-dot ${p.color || 'green'}"></div>
+      <div class="pi-name">${p.name} <span style="font-size:13px;color:var(--text2);font-weight:400">purchased</span></div>
+      <div class="pi-plan">Plan: <span>${p.plan}</span></div>
+      <div class="pi-price">${p.price}</div>`;
     list.appendChild(el);
   }, i * 150));
 }
+
 function showToast() {
+  if (!proofItems.length) return;
   const wrap = document.getElementById('toastWrap');
-  const p = proofItems[Math.floor(Math.random()*proofItems.length)];
-  const phrase = toastPhrases[Math.floor(Math.random()*toastPhrases.length)];
+  const p = proofItems[Math.floor(Math.random() * proofItems.length)];
+  const phrase = toastPhrases[Math.floor(Math.random() * toastPhrases.length)];
   const t = document.createElement('div');
   t.className = 'toast';
   t.innerHTML = `<div class="toast-dot"></div><div><div><span class="toast-name">${p.name}</span> purchased</div><div class="toast-time">${p.plan} · ${phrase}</div></div>`;
@@ -331,10 +351,12 @@ function showToast() {
   setTimeout(() => t.classList.add('show'), 50);
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 4000);
 }
-document.addEventListener('DOMContentLoaded', () => {
+
+document.addEventListener('DOMContentLoaded', async () => {
   loadStats();
+  await loadProofData();
   renderPurchaseList();
-  setTimeout(() => { showToast(); setInterval(showToast, Math.random()*7000+8000); }, 3000);
+  setTimeout(() => { showToast(); setInterval(showToast, Math.random() * 7000 + 8000); }, 3000);
 });
 </script>
 </body>
