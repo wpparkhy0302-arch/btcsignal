@@ -81,26 +81,15 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 #chart-container{width:100%;height:400px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
 
 /* ── Signal Hero ── */
-.sig-hero{border-radius:var(--r);padding:22px 26px;margin-bottom:10px;border:2px solid;}
-.sig-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;}
-.sig-hero-bottom{display:grid;grid-template-columns:auto 1px 1fr auto;align-items:center;gap:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);}
-.sig-entry-lbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
-.sig-entry-val{font-size:19px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
-.sig-entry-val.long{color:var(--long);}
-.sig-entry-val.short{color:var(--short);}
-.sig-entry-val.hold{color:var(--hold);}
-.sig-conf-wrap{min-width:0;}
-.sig-conf-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
-.sig-conf-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;}
-.sig-conf-fill{height:100%;border-radius:4px;transition:width 1s ease;}
-.sig-conf-fill.long{background:var(--long);}
-.sig-conf-fill.short{background:var(--short);}
-.sig-conf-fill.hold{background:var(--hold);}
+.sig-hero{border-radius:var(--r);padding:22px 26px;margin-bottom:10px;border:2px solid;overflow:hidden;}
 .sig-hero.long{background:var(--long-bg);border-color:rgba(6,182,107,.4);}
 .sig-hero.short{background:var(--short-bg);border-color:rgba(240,68,82,.4);}
 .sig-hero.hold{background:var(--hold-bg);border-color:rgba(245,166,35,.4);}
-.sig-left{display:flex;flex-direction:column;flex:1;min-width:0;}
-.sig-left-head{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
+
+/* Top row: signal info (left) | leverage (right) */
+.sig-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;}
+.sig-left{display:flex;flex-direction:column;flex:1 1 0%;min-width:0;overflow:hidden;}
+.sig-left-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
 .sig-badge{font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:4px;display:inline-block;flex-shrink:0;}
 .sig-badge.long{background:var(--long);color:#fff;}
 .sig-badge.short{background:var(--short);color:#fff;}
@@ -110,12 +99,29 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .sig-name.short{color:var(--short);}
 .sig-name.hold{color:var(--hold);}
 .sig-reason{font-size:13px;color:var(--text2);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sig-right{text-align:right;flex-shrink:0;}
+.sig-right{flex:0 0 auto;text-align:right;}
 .sig-lev-lbl{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px;}
 .sig-lev-val{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);}
-.sig-divider{width:1px;height:40px;background:rgba(255,255,255,0.08);}
+
+/* Bottom row: Entry | divider | Confidence | R:R */
+.sig-hero-bottom{display:flex;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);}
+.sig-bottom-entry{flex:0 0 auto;padding-right:20px;}
+.sig-divider{flex:0 0 1px;width:1px;height:40px;background:rgba(255,255,255,0.08);margin-right:20px;}
+.sig-conf-wrap{flex:1 1 0%;min-width:0;padding-right:20px;}
+.sig-bottom-right{flex:0 0 auto;text-align:right;}
+
+.sig-entry-lbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+.sig-entry-val{font-size:19px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.sig-entry-val.long{color:var(--long);}
+.sig-entry-val.short{color:var(--short);}
+.sig-entry-val.hold{color:var(--hold);}
+.sig-conf-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.sig-conf-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;}
+.sig-conf-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.sig-conf-fill.long{background:var(--long);}
+.sig-conf-fill.short{background:var(--short);}
+.sig-conf-fill.hold{background:var(--hold);}
 .sig-rr-val{font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--long);}
-.sig-bottom-right{text-align:right;}
 
 /* ── 3-col summary ── */
 .sum-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
@@ -1031,7 +1037,7 @@ function renderAnalysis(sig, ticker) {
         </div>
       </div>
       <div class="sig-hero-bottom">
-        <div>
+        <div class="sig-bottom-entry">
           <div class="sig-entry-lbl">Suggested Entry</div>
           <div class="sig-entry-val ${posCls}" style="${isTrial?'filter:blur(6px);user-select:none;':''}">${isTrial?'$00,000.00':sig.entryPrice}</div>
         </div>
