@@ -80,48 +80,48 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 /* ── Chart ── */
 #chart-container{width:100%;height:400px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
 
-/* ── Signal Hero ── */
-.sig-hero{border-radius:var(--r);padding:22px 26px;margin-bottom:10px;border:2px solid;overflow:hidden;}
-.sig-hero.long{background:var(--long-bg);border-color:rgba(6,182,107,.4);}
-.sig-hero.short{background:var(--short-bg);border-color:rgba(240,68,82,.4);}
-.sig-hero.hold{background:var(--hold-bg);border-color:rgba(245,166,35,.4);}
+/* ── Signal Card ── */
+.signal-card{border-radius:var(--r);padding:22px 26px;margin-bottom:10px;border:2px solid;overflow:hidden;}
+.signal-card.long{background:var(--long-bg);border-color:rgba(6,182,107,.4);}
+.signal-card.short{background:var(--short-bg);border-color:rgba(240,68,82,.4);}
+.signal-card.hold{background:var(--hold-bg);border-color:rgba(245,166,35,.4);}
 
-/* Top row: signal info (left) | leverage (right) */
-.sig-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;}
-.sig-left{display:flex;flex-direction:column;flex:1 1 0%;min-width:0;overflow:hidden;}
-.sig-left-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
-.sig-badge{font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:4px;display:inline-block;flex-shrink:0;}
-.sig-badge.long{background:var(--long);color:#fff;}
-.sig-badge.short{background:var(--short);color:#fff;}
-.sig-badge.hold{background:var(--hold);color:#fff;}
-.sig-name{font-size:28px;font-weight:700;line-height:1;}
-.sig-name.long{color:var(--long);}
-.sig-name.short{color:var(--short);}
-.sig-name.hold{color:var(--hold);}
-.sig-reason{font-size:13px;color:var(--text2);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sig-right{flex:0 0 auto;text-align:right;}
-.sig-lev-lbl{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px;}
-.sig-lev-val{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);}
+/* signal-header: badge+name+reason (left) | leverage (right) */
+.signal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;}
+.signal-left{display:flex;flex-direction:column;flex:1 1 0%;min-width:0;overflow:hidden;}
+.signal-left-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+.signal-badge{font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:4px;display:inline-block;flex-shrink:0;}
+.signal-badge.long{background:var(--long);color:#fff;}
+.signal-badge.short{background:var(--short);color:#fff;}
+.signal-badge.hold{background:var(--hold);color:#fff;}
+.signal-name{font-size:28px;font-weight:700;line-height:1;}
+.signal-name.long{color:var(--long);}
+.signal-name.short{color:var(--short);}
+.signal-name.hold{color:var(--hold);}
+.signal-desc{font-size:13px;color:var(--text2);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.leverage-box{flex:0 0 auto;text-align:right;}
+.leverage-lbl{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px;}
+.leverage-val{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);}
 
-/* Bottom row: Entry | divider | Confidence | R:R */
-.sig-hero-bottom{display:flex;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);}
-.sig-bottom-entry{flex:0 0 auto;padding-right:20px;}
-.sig-divider{flex:0 0 1px;width:1px;height:40px;background:rgba(255,255,255,0.08);margin-right:20px;}
-.sig-conf-wrap{flex:1 1 0%;min-width:0;padding-right:20px;}
-.sig-bottom-right{flex:0 0 auto;text-align:right;}
+/* signal-metrics-row: Entry | divider | Confidence | R:R */
+.signal-metrics-row{display:flex;align-items:center;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);}
+.metric-entry{flex:0 0 auto;padding-right:20px;}
+.metric-divider{flex:0 0 1px;width:1px;height:40px;background:rgba(255,255,255,0.08);margin-right:20px;align-self:stretch;}
+.metric-confidence{flex:1 1 0%;min-width:0;padding-right:20px;}
+.metric-rr{flex:0 0 auto;text-align:right;}
 
-.sig-entry-lbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
-.sig-entry-val{font-size:19px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
-.sig-entry-val.long{color:var(--long);}
-.sig-entry-val.short{color:var(--short);}
-.sig-entry-val.hold{color:var(--hold);}
-.sig-conf-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
-.sig-conf-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;}
-.sig-conf-fill{height:100%;border-radius:4px;transition:width 1s ease;}
-.sig-conf-fill.long{background:var(--long);}
-.sig-conf-fill.short{background:var(--short);}
-.sig-conf-fill.hold{background:var(--hold);}
-.sig-rr-val{font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--long);}
+.metric-lbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+.metric-entry-val{font-size:19px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.metric-entry-val.long{color:var(--long);}
+.metric-entry-val.short{color:var(--short);}
+.metric-entry-val.hold{color:var(--hold);}
+.metric-conf-lbl{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.metric-conf-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;}
+.metric-conf-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.metric-conf-fill.long{background:var(--long);}
+.metric-conf-fill.short{background:var(--short);}
+.metric-conf-fill.hold{background:var(--hold);}
+.metric-rr-val{font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--long);}
 
 /* ── 3-col summary ── */
 .sum-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
@@ -805,8 +805,8 @@ function generateSignal(kdata) {
   if (ma20Val && ma50Val) {
     if (price > ma20Val && price > ma50Val) { score += 1; reasons.push('Above MA20&MA50'); }
     else if (price < ma20Val && price < ma50Val) { score -= 1; bearReasons.push('Below MA20&MA50'); }
-    if (ma20Val > ma50Val) { score += 1; reasons.push('MA20>MA50 Uptrend'); }
-    else { score -= 1; bearReasons.push('MA20<MA50 Downtrend'); }
+    if (ma20Val > ma50Val) { score += 1; reasons.push('MA20 above MA50 (Uptrend)'); }
+    else { score -= 1; bearReasons.push('MA20 below MA50 (Downtrend)'); }
   }
   if (ma200Val) {
     if (price > ma200Val) { score += 1; reasons.push('Above MA200 (Long-term Uptrend)'); }
@@ -1019,43 +1019,47 @@ function buildRisk(pos, rsi, score) {
 function renderAnalysis(sig, ticker) {
   const posCls = sig.position==='LONG'?'long':sig.position==='SHORT'?'short':'hold';
 
-  const entryLabel = 'Suggested Entry';
   const html = `
-    <!-- Hero -->
-    <div class="sig-hero ${posCls}">
-      <div class="sig-hero-top">
-        <div class="sig-left">
-          <div class="sig-left-head">
-            <span class="sig-badge ${posCls}">${sig.position}</span>
-            <div class="sig-name ${posCls}">${sig.posName}</div>
+    <!-- Signal Card -->
+    <div class="signal-card ${posCls}">
+
+      <!-- signal-header: LEFT(badge/name/desc) | RIGHT(leverage) -->
+      <div class="signal-header">
+        <div class="signal-left">
+          <div class="signal-left-top">
+            <span class="signal-badge ${posCls}">${sig.position}</span>
+            <div class="signal-name ${posCls}">${sig.posName}</div>
           </div>
-          <div class="sig-reason">${sig.mainReason}</div>
+          <div class="signal-desc">${sig.mainReason}</div>
         </div>
-        <div class="sig-right">
-          <div class="sig-lev-lbl">Suggested Leverage</div>
-          <div class="sig-lev-val">${sig.leverageRec}</div>
+        <div class="leverage-box">
+          <div class="leverage-lbl">Suggested Leverage</div>
+          <div class="leverage-val">${sig.leverageRec}</div>
         </div>
       </div>
-      <div class="sig-hero-bottom">
-        <div class="sig-bottom-entry">
-          <div class="sig-entry-lbl">Suggested Entry</div>
-          <div class="sig-entry-val ${posCls}" style="${isTrial?'filter:blur(6px);user-select:none;':''}">${isTrial?'$00,000.00':sig.entryPrice}</div>
+
+      <!-- signal-metrics-row: Entry | Confidence | R:R (always BELOW header) -->
+      <div class="signal-metrics-row">
+        <div class="metric-entry">
+          <div class="metric-lbl">Suggested Entry</div>
+          <div class="metric-entry-val ${posCls}" style="${isTrial?'filter:blur(6px);user-select:none;':''}">${isTrial?'$00,000.00':sig.entryPrice}</div>
         </div>
-        <div class="sig-divider"></div>
-        <div class="sig-conf-wrap">
-          <div class="sig-conf-lbl">
+        <div class="metric-divider"></div>
+        <div class="metric-confidence">
+          <div class="metric-conf-lbl">
             <span>Confidence</span>
             <span style="font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text)">${sig.confidence}%</span>
           </div>
-          <div class="sig-conf-bar">
-            <div class="sig-conf-fill ${posCls}" style="width:${sig.confidence}%"></div>
+          <div class="metric-conf-bar">
+            <div class="metric-conf-fill ${posCls}" style="width:${sig.confidence}%"></div>
           </div>
         </div>
-        <div class="sig-bottom-right">
-          <div class="sig-entry-lbl">R:R Ratio</div>
-          <div class="sig-rr-val">${sig.rrRatio}</div>
+        <div class="metric-rr">
+          <div class="metric-lbl">R:R Ratio</div>
+          <div class="metric-rr-val">${sig.rrRatio}</div>
         </div>
       </div>
+
     </div>
 
     <!-- Timeframe -->
