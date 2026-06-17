@@ -74,7 +74,7 @@ if (!isAuthenticated) {
       font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px
     }
     .panel-title .dot{width:9px;height:9px;border-radius:50%;background:var(--green)}
-    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;margin-bottom:20px}
     .stat-card{
       background:rgba(255,255,255,.02);
       border:1px solid var(--border);
@@ -116,6 +116,21 @@ if (!isAuthenticated) {
     }
     .btn-revoke.revoked{color:#ff8d96;border-color:#7d2d36}
     .btn-revoke.active{color:#7ef0b9;border-color:#206d55}
+    .sub-card{
+      background:linear-gradient(180deg,#111a2c,#0f1728);
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+      margin-bottom:20px;
+    }
+    .sub-card-search{
+      display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+      padding:16px 20px;border-bottom:1px solid var(--border)
+    }
+    .sub-card-search .search-input{height:40px}
+    .sub-card .table-wrap{
+      border:none;border-radius:0;background:transparent;margin-bottom:0
+    }
     .search-row{
       display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:10px
     }
@@ -136,10 +151,10 @@ if (!isAuthenticated) {
     }
     .table-row:last-child{border-bottom:none}
     .table-row.revoked{opacity:.72}
-    .td{min-width:0}
+    .td{min-width:0;overflow:hidden}
     .mono{
       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      font-size:13px;word-break:break-all
+      font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
     }
     .status-badge{
       display:inline-flex;align-items:center;justify-content:center;
@@ -173,7 +188,7 @@ if (!isAuthenticated) {
     .helper{font-size:12px;color:var(--text2);margin-top:8px}
     @media (max-width: 900px){
       .stats-grid{grid-template-columns:1fr 1fr}
-      .gen-row,.row-2,.search-row{grid-template-columns:1fr}
+      .gen-row,.row-2,.search-row,.sub-card-search{grid-template-columns:1fr}
       .table-head{display:none}
       .table-row{grid-template-columns:1fr;gap:8px;padding:16px}
       .gen-result.show{display:block}
@@ -188,7 +203,7 @@ if (!isAuthenticated) {
     }
     .proof-grid-head{
       font-size:12px;color:var(--text2);font-weight:800;
-      padding:0 4px 10px
+      padding:0 11px 10px
     }
     .proof-grid-row{
       background:rgba(255,255,255,.02);
@@ -331,23 +346,24 @@ if (!isAuthenticated) {
     </div>
 
     <div class="sec-label">구독자 목록</div>
-    <div class="search-row">
-      <input class="search-input" id="searchInput" placeholder="이름 또는 키로 검색..." oninput="renderTable()">
-      <button class="btn-export" onclick="exportCSV()">CSV 내보내기</button>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-head">
-        <span>라이선스 키</span>
-        <span>구매자</span>
-        <span>발급일</span>
-        <span>만료일</span>
-        <span>마지막 사용</span>
-        <span>상태</span>
-        <span></span>
+    <div class="sub-card">
+      <div class="sub-card-search">
+        <input class="search-input" id="searchInput" placeholder="이름 또는 키로 검색..." oninput="renderTable()">
+        <button class="btn-export" onclick="exportCSV()">CSV 내보내기</button>
       </div>
-      <div id="tableBody">
-        <div class="empty-state">발급된 키가 없습니다. 위에서 새 키를 발급해 주세요.</div>
+      <div class="table-wrap">
+        <div class="table-head">
+          <span>라이선스 키</span>
+          <span>구매자</span>
+          <span>발급일</span>
+          <span>만료일</span>
+          <span>마지막 사용</span>
+          <span>상태</span>
+          <span></span>
+        </div>
+        <div id="tableBody">
+          <div class="empty-state">발급된 키가 없습니다. 위에서 새 키를 발급해 주세요.</div>
+        </div>
       </div>
     </div>
   </div>
