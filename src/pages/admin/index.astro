@@ -382,10 +382,11 @@ if (!isAuthenticated) {
   </div>
 
   <div class="toast" id="toast"></div>
+  <div id="admin-cfg" data-token={adminPassword} style="display:none"></div>
 
-  <script is:inline define:vars={{ adminPassword }}>
+  <script is:inline>
     const WP_API = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1';
-    const ADMIN_TOKEN = adminPassword;
+    const ADMIN_TOKEN = document.getElementById('admin-cfg')?.dataset?.token || '';
 
     function escapeHtml(value) {
       return String(value)
