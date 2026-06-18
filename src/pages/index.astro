@@ -9,7 +9,7 @@
 <title>BTC Signal AI — Real-Time Trading Signals</title>
 <meta name="description" content="Get instant LONG/SHORT signals for BTC, ETH, SOL and BNB. AI-powered technical analysis with auto-calculated entry, target, and stop-loss prices.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-<style>
+<style is:global>
 :root{--bg:#0a0d14;--card:#13192a;--card2:#1a2236;--border:#1e2d47;--border2:#263654;--green:#06b66b;--green-bg:rgba(6,182,107,0.1);--red:#f04452;--blue:#3182f6;--blue-bg:rgba(49,130,246,0.1);--gold:#f5a623;--text:#e8edf5;--text2:#8b95a7;--text3:#4a5568;--r:12px;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;}
@@ -82,24 +82,27 @@ section{padding:80px 24px;}
 .pp-val{font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);}
 .purchase-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
 .purchase-live-badge{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text2);background:var(--card2);border:1px solid var(--border);padding:6px 14px;border-radius:20px;}
-.purchase-list{display:flex;flex-direction:column;gap:8px;}
-.purchase-item{
-  background:var(--card2);border:1px solid var(--border);border-radius:10px;
-  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+.activity-list{display:flex;flex-direction:column;gap:12px;}
+.activity-row{
+  display:flex;justify-content:space-between;align-items:center;
+  background:#111827;border:1px solid #24324a;border-radius:10px;padding:16px 18px;
 }
-.pi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.pi-dot.green{background:var(--green);}
-.pi-dot.blue{background:var(--blue);}
-.pi-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
-.pi-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pi-purchased{color:var(--text2);font-weight:400;margin-left:4px;}
-.pi-right{display:flex;align-items:center;gap:24px;flex-shrink:0;}
-.pi-plan{font-size:13px;color:var(--text2);white-space:nowrap;}
-.pi-plan span{color:var(--text);font-weight:600;}
-.pi-price{font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace;min-width:96px;text-align:right;white-space:nowrap;}
+.activity-left,.activity-right{display:flex;align-items:center;gap:8px;}
+.activity-left{flex:1;min-width:0;}
+.activity-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  background:var(--green);
+}
+.activity-dot.blue{background:var(--blue);}
+.buyer-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.activity-text{font-size:14px;color:var(--text2);font-weight:400;white-space:nowrap;}
+.activity-right{flex-shrink:0;gap:16px;}
+.plan-label{font-size:13px;color:var(--text2);white-space:nowrap;}
+.plan-value{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;}
+.price-value{font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);white-space:nowrap;min-width:80px;text-align:right;}
 @media(max-width:600px){
-  .purchase-item{flex-wrap:wrap;padding:12px 14px;gap:8px;}
-  .pi-right{width:100%;justify-content:space-between;}
+  .activity-row{flex-wrap:wrap;gap:10px;padding:12px 14px;}
+  .activity-right{width:100%;justify-content:space-between;}
 }
 .reviews-sec{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
@@ -218,7 +221,7 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
         Updating Live
       </div>
     </div>
-    <div class="purchase-list" id="purchaseList"></div>
+    <div class="activity-list" id="activityList"></div>
   </div>
 </section>
 <section id="reviews" class="reviews-sec">
@@ -343,23 +346,54 @@ async function loadProofData() {
 }
 
 function renderPurchaseList() {
-  const list = document.getElementById('purchaseList');
+  const list = document.getElementById('activityList');
   if (!list) return;
   list.innerHTML = '';
   proofItems.forEach((p, i) => setTimeout(() => {
-    const color = (p.color || 'green') === 'blue' ? 'blue' : 'green';
-    const el = document.createElement('div');
-    el.className = 'purchase-item';
-    el.innerHTML = `
-      <div class="pi-left">
-        <span class="pi-dot ${color}"></span>
-        <span class="pi-name">${p.name}<span class="pi-purchased">purchased</span></span>
-      </div>
-      <div class="pi-right">
-        <span class="pi-plan">Plan: <span>${mapPlan(p.plan)}</span></span>
-        <span class="pi-price">${p.price}</span>
-      </div>`;
-    list.appendChild(el);
+    const isBlue = (p.color || 'green') === 'blue';
+    const row = document.createElement('div');
+    row.className = 'activity-row';
+
+    const left = document.createElement('div');
+    left.className = 'activity-left';
+
+    const dot = document.createElement('span');
+    dot.className = 'activity-dot' + (isBlue ? ' blue' : '');
+
+    const name = document.createElement('span');
+    name.className = 'buyer-name';
+    name.textContent = p.name;
+
+    const text = document.createElement('span');
+    text.className = 'activity-text';
+    text.textContent = 'purchased';
+
+    left.appendChild(dot);
+    left.appendChild(name);
+    left.appendChild(text);
+
+    const right = document.createElement('div');
+    right.className = 'activity-right';
+
+    const planLabel = document.createElement('span');
+    planLabel.className = 'plan-label';
+    planLabel.textContent = 'Plan:';
+
+    const planVal = document.createElement('span');
+    planVal.className = 'plan-value';
+    planVal.textContent = mapPlan(p.plan);
+
+    const price = document.createElement('span');
+    price.className = 'price-value';
+    price.textContent = p.price;
+
+    right.appendChild(planLabel);
+    right.appendChild(planVal);
+    right.appendChild(price);
+
+    row.appendChild(left);
+    row.appendChild(right);
+    list.appendChild(row);
   }, i * 120));
 }
 
