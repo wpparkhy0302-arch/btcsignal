@@ -383,7 +383,7 @@ if (!isAuthenticated) {
 
   <div class="toast" id="toast"></div>
 
-  <script define:vars={{ adminPassword }}>
+  <script is:inline define:vars={{ adminPassword }}>
     const WP_API = 'https://wordpress-1588000-6280934.cloudwaysapps.com/wp-json/btcai/v1';
     const ADMIN_TOKEN = adminPassword;
 
