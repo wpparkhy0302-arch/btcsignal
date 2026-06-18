@@ -15,12 +15,12 @@ if (!isAuthenticated) {
 }
 ---
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BTC Signal AI - 관리자</title>
-  <style>
+  <title>BTC Signal AI - Admin</title>
+  <style is:global>
     :root{
       --bg:#050914;
       --card:#101827;
@@ -138,23 +138,29 @@ if (!isAuthenticated) {
     .table-wrap{
       overflow:hidden;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.02)
     }
-    .table-head,.table-row{
-      display:grid;
-      grid-template-columns:2.1fr 1fr .9fr .9fr .95fr .7fr 1fr;
-      gap:10px;align-items:center
+    .lic-table{width:100%;border-collapse:collapse;table-layout:fixed}
+    .lic-table th{
+      padding:12px 16px;border-bottom:1px solid var(--border);
+      font-size:12px;color:var(--text2);font-weight:800;text-align:left;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis
     }
-    .table-head{
-      padding:14px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);font-weight:800
+    .lic-table td{
+      padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);
+      font-size:14px;vertical-align:middle;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap
     }
-    .table-row{
-      padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:14px
-    }
-    .table-row:last-child{border-bottom:none}
-    .table-row.revoked{opacity:.72}
-    .td{min-width:0;overflow:hidden}
+    .lic-table tr:last-child td{border-bottom:none}
+    .lic-table tr.revoked-row td{opacity:.72}
+    .lic-table th:nth-child(1){width:26%}
+    .lic-table th:nth-child(2){width:12%}
+    .lic-table th:nth-child(3){width:10%}
+    .lic-table th:nth-child(4){width:10%}
+    .lic-table th:nth-child(5){width:11%}
+    .lic-table th:nth-child(6){width:9%}
+    .lic-table th:nth-child(7){width:22%}
     .mono{
       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+      font-size:13px
     }
     .status-badge{
       display:inline-flex;align-items:center;justify-content:center;
@@ -189,8 +195,9 @@ if (!isAuthenticated) {
     @media (max-width: 900px){
       .stats-grid{grid-template-columns:1fr 1fr}
       .gen-row,.row-2,.search-row,.sub-card-search{grid-template-columns:1fr}
-      .table-head{display:none}
-      .table-row{grid-template-columns:1fr;gap:8px;padding:16px}
+      .lic-table thead{display:none}
+      .lic-table td{display:block;text-align:right;padding:8px 16px}
+      .lic-table td::before{content:attr(data-label);float:left;font-size:11px;color:var(--text3);font-weight:700}
       .proof-grid-head{display:none}
       .proof-grid-row{grid-template-columns:1fr;gap:8px;padding:16px}
       .gen-result.show{display:block}
@@ -237,135 +244,139 @@ if (!isAuthenticated) {
       <div class="brand">
         <div class="logo">₿</div>
         <div>
-          <div class="title">BTC Signal AI — 관리자</div>
-          <div class="sub">라이선스 키 발급 및 구독자 관리</div>
+          <div class="title">BTC Signal AI — Admin</div>
+          <div class="sub">License key management &amp; subscribers</div>
         </div>
       </div>
       <div class="topbar-right">
         <div class="admin-badge">ADMIN</div>
-        <a href="/api/admin/logout"><button class="btn-logout">로그아웃</button></a>
+        <a href="/api/admin/logout"><button class="btn-logout">Log out</button></a>
       </div>
     </div>
 
     <div class="panel">
-      <div class="panel-title"><span class="dot"></span> 랜딩 페이지 통계 관리</div>
+      <div class="panel-title"><span class="dot"></span> Landing Page Stats</div>
       <div class="row-2">
         <div class="field">
-          <label>누적 구매자 수</label>
-          <input id="buyersInput" type="number" placeholder="예: 127">
+          <label>Total Buyers</label>
+          <input id="buyersInput" type="number" placeholder="e.g. 127">
         </div>
         <div class="field">
-          <label>재구독률 (%)</label>
-          <input id="resubInput" type="number" placeholder="예: 96">
+          <label>Re-subscription Rate (%)</label>
+          <input id="resubInput" type="number" placeholder="e.g. 96">
         </div>
-        <button class="btn-save" onclick="saveLandingStats()">저장</button>
+        <button class="btn-save" onclick="saveLandingStats()">Save</button>
       </div>
-      <div class="helper" id="statsMsg">숫자를 입력해 주세요.</div>
+      <div class="helper" id="statsMsg">Enter numbers to update landing stats.</div>
     </div>
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-lbl">전체 발급 키</div>
+        <div class="stat-lbl">Total Keys</div>
         <div class="stat-val blue" id="statTotal">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-lbl">활성 구독자</div>
+        <div class="stat-lbl">Active</div>
         <div class="stat-val green" id="statActive">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-lbl">취소 / 정지</div>
+        <div class="stat-lbl">Cancelled / Suspended</div>
         <div class="stat-val red" id="statRevoked">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-lbl">만료 예정 (30일)</div>
+        <div class="stat-lbl">Expiring (30d)</div>
         <div class="stat-val yellow" id="statSoon">0</div>
       </div>
     </div>
 
-    <div class="sec-label">새 라이선스 키 발급</div>
+    <div class="sec-label">Issue New License Key</div>
     <div class="gen-card">
       <div class="gen-row">
         <div class="field">
-          <label>구매자 이름 / 닉네임</label>
-          <input type="text" id="genName" placeholder="예) 홍길동">
+          <label>Buyer Name</label>
+          <input type="text" id="genName" placeholder="e.g. John Doe">
         </div>
         <div class="field">
-          <label>구독 기간</label>
+          <label>Subscription Period</label>
           <select id="genPeriod">
-            <option value="1">1개월</option>
-            <option value="3">3개월</option>
-            <option value="6">6개월</option>
-            <option value="12" selected>12개월</option>
-            <option value="24">24개월 (2년)</option>
-            <option value="120">영구</option>
+            <option value="1">1 Month</option>
+            <option value="3">3 Months</option>
+            <option value="6">6 Months</option>
+            <option value="12" selected>12 Months</option>
+            <option value="24">24 Months (2yr)</option>
+            <option value="120">Lifetime</option>
           </select>
         </div>
         <div class="field">
-          <label>최대 기기 수</label>
+          <label>Max Devices</label>
           <select id="genMaxDev">
-            <option value="1">1대</option>
-            <option value="2">2대</option>
-            <option value="3">3대</option>
-            <option value="99">무제한</option>
+            <option value="1">1 Device</option>
+            <option value="2">2 Devices</option>
+            <option value="3">3 Devices</option>
+            <option value="99">Unlimited</option>
           </select>
         </div>
       </div>
       <div class="gen-row" style="margin-top:10px;grid-template-columns:auto auto;">
-        <button class="btn-gen" id="btnGen" onclick="generateKey()">키 발급</button>
-        <button class="btn-copy" onclick="copyLastKey()">복사</button>
+        <button class="btn-gen" id="btnGen" onclick="generateKey()">Issue Key</button>
+        <button class="btn-copy" onclick="copyLastKey()">Copy</button>
       </div>
       <div class="gen-result" id="genResult">
         <div>
           <div class="gen-key-val" id="genKeyVal"></div>
           <div class="gen-key-meta" id="genKeyMeta"></div>
         </div>
-        <button class="btn-add" onclick="refreshTable()">목록 새로고침</button>
+        <button class="btn-add" onclick="refreshTable()">Refresh List</button>
       </div>
     </div>
 
-    <div class="sec-label">실시간 구매 현황 관리</div>
+    <div class="sec-label">Live Purchase Activity</div>
     <div class="panel proof-panel">
-      <div class="panel-title"><span class="dot"></span> 랜딩 페이지 구매자 목록</div>
-      <div class="helper">여기서 랜딩 페이지의 실시간 구매 목록과 작은 팝업 문구를 직접 수정할 수 있습니다.</div>
+      <div class="panel-title"><span class="dot"></span> Landing Page Buyer List</div>
+      <div class="helper">Edit the live purchase list and popup phrases displayed on the landing page.</div>
       <div class="proof-toolbar" style="margin-top:14px">
-        <button class="btn-save" type="button" onclick="addProofRow()">항목 추가</button>
-        <button class="btn-copy" type="button" onclick="saveProofData()">목록 저장</button>
+        <button class="btn-save" type="button" onclick="addProofRow()">Add Row</button>
+        <button class="btn-copy" type="button" onclick="saveProofData()">Save List</button>
       </div>
       <div class="proof-grid-head">
-        <span>이름 마스킹</span>
-        <span>플랜</span>
-        <span>가격</span>
-        <span>색상</span>
-        <span>표시</span>
+        <span>Masked Name</span>
+        <span>Plan</span>
+        <span>Price</span>
+        <span>Color</span>
+        <span>Visible</span>
         <span></span>
       </div>
       <div id="proofRows"></div>
       <div class="proof-phrase-wrap">
-        <label style="display:block;font-size:12px;color:var(--text2);font-weight:700;margin-bottom:8px">토스트 문구 (한 줄에 하나씩)</label>
-        <textarea id="toastPhrases" class="proof-phrase-textarea" placeholder="방금 합류하셨어요&#10;조금 전 구매 완료&#10;최근 등록 완료"></textarea>
-        <div class="helper">작은 팝업 알림에서 번갈아 보여줄 문구입니다.</div>
+        <label style="display:block;font-size:12px;color:var(--text2);font-weight:700;margin-bottom:8px">Toast Phrases (one per line)</label>
+        <textarea id="toastPhrases" class="proof-phrase-textarea" placeholder="just joined&#10;just purchased&#10;recently subscribed"></textarea>
+        <div class="helper">These phrases rotate in the small popup notifications.</div>
       </div>
     </div>
 
-    <div class="sec-label">구독자 목록</div>
+    <div class="sec-label">Subscribers</div>
     <div class="sub-card">
       <div class="sub-card-search">
-        <input class="search-input" id="searchInput" placeholder="이름 또는 키로 검색..." oninput="renderTable()">
-        <button class="btn-export" onclick="exportCSV()">CSV 내보내기</button>
+        <input class="search-input" id="searchInput" placeholder="Search by name or key..." oninput="renderTable()">
+        <button class="btn-export" onclick="exportCSV()">Export CSV</button>
       </div>
       <div class="table-wrap">
-        <div class="table-head">
-          <span>라이선스 키</span>
-          <span>구매자</span>
-          <span>발급일</span>
-          <span>만료일</span>
-          <span>마지막 사용</span>
-          <span>상태</span>
-          <span></span>
-        </div>
-        <div id="tableBody">
-          <div class="empty-state">발급된 키가 없습니다. 위에서 새 키를 발급해 주세요.</div>
-        </div>
+        <table class="lic-table">
+          <thead>
+            <tr>
+              <th>License Key</th>
+              <th>Customer</th>
+              <th>Issued</th>
+              <th>Expires</th>
+              <th>Last Used</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="7" class="empty-state">No keys issued yet. Issue a new key above.</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -400,19 +411,21 @@ if (!isAuthenticated) {
       const row = document.createElement('div');
       row.className = 'proof-grid-row';
       row.innerHTML = `
-        <input class="proof-small-input proof-name" placeholder="예: ko***27" value="${escapeHtml(item.name || '')}">
+        <input class="proof-small-input proof-name" placeholder="e.g. ko***27" value="${escapeHtml(item.name || '')}">
         <select class="proof-small-select proof-plan">
           <option value="1개월" ${item.plan === '1개월' ? 'selected' : ''}>1개월</option>
           <option value="3개월" ${item.plan === '3개월' ? 'selected' : ''}>3개월</option>
+          <option value="6개월" ${item.plan === '6개월' ? 'selected' : ''}>6개월</option>
           <option value="12개월" ${item.plan === '12개월' ? 'selected' : ''}>12개월</option>
+          <option value="24개월 (2년)" ${item.plan === '24개월 (2년)' ? 'selected' : ''}>24개월 (2년)</option>
         </select>
-        <input class="proof-small-input proof-price" placeholder="예: 79,000원" value="${escapeHtml(item.price || '')}">
+        <input class="proof-small-input proof-price" placeholder="e.g. $29.00" value="${escapeHtml(item.price || '')}">
         <select class="proof-small-select proof-color">
-          <option value="green" ${item.color === 'green' ? 'selected' : ''}>초록</option>
-          <option value="blue" ${item.color === 'blue' ? 'selected' : ''}>파랑</option>
+          <option value="green" ${item.color === 'green' ? 'selected' : ''}>Green</option>
+          <option value="blue" ${item.color === 'blue' ? 'selected' : ''}>Blue</option>
         </select>
         <label class="proof-check"><input type="checkbox" class="proof-enabled" ${item.enabled !== false ? 'checked' : ''}></label>
-        <button type="button" class="proof-remove">삭제</button>
+        <button type="button" class="proof-remove">Remove</button>
       `;
       row.querySelector('.proof-remove').addEventListener('click', () => row.remove());
       return row;
@@ -442,7 +455,7 @@ if (!isAuthenticated) {
         const items = Array.isArray(data.items) && data.items.length ? data.items : defaultProofItems();
         const phrases = Array.isArray(data.toast_phrases) && data.toast_phrases.length
           ? data.toast_phrases
-          : ['방금 합류하셨어요', '조금 전 구매 완료', '최근 등록 완료', '지금 막 시작하셨어요'];
+          : ['just joined', 'just purchased', 'recently subscribed', 'just started'];
         const box = document.getElementById('proofRows');
         box.innerHTML = '';
         items.forEach(item => addProofRow(item));
@@ -450,7 +463,7 @@ if (!isAuthenticated) {
       } catch (e) {
         document.getElementById('proofRows').innerHTML = '';
         defaultProofItems().forEach(item => addProofRow(item));
-        document.getElementById('toastPhrases').value = ['방금 합류하셨어요', '조금 전 구매 완료', '최근 등록 완료', '지금 막 시작하셨어요'].join('\n');
+        document.getElementById('toastPhrases').value = ['just joined', 'just purchased', 'recently subscribed', 'just started'].join('\n');
       }
     }
 
@@ -458,16 +471,16 @@ if (!isAuthenticated) {
       const items = collectProofRows();
       const toast_phrases = document.getElementById('toastPhrases').value
         .split('\n').map(v => v.trim()).filter(Boolean);
-      if (!items.length) { showToast('실시간 구매 항목을 한 개 이상 입력해 주세요.', 'red'); return; }
+      if (!items.length) { showToast('Please add at least one item.', 'red'); return; }
       try {
         const res = await fetch(WP_API + '/proof-data/update', {
           method: 'POST', headers: hdrs(),
           body: JSON.stringify({ items, toast_phrases })
         });
         const data = await res.json();
-        if (data.ok || data.success) showToast('실시간 구매 목록 저장 완료', 'green');
-        else showToast(data.msg || '저장 실패', 'red');
-      } catch (e) { showToast('서버 연결 실패', 'red'); }
+        if (data.ok || data.success) showToast('Purchase list saved.', 'green');
+        else showToast(data.msg || 'Save failed', 'red');
+      } catch (e) { showToast('Server connection error', 'red'); }
     }
 
     let allKeys = [];
@@ -487,7 +500,7 @@ if (!isAuthenticated) {
     function fmtDate(value) {
       if (!value) return '-';
       const d = new Date(value);
-      return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString('ko-KR');
+      return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString('en-US');
     }
 
     async function loadLandingStats() {
@@ -497,7 +510,7 @@ if (!isAuthenticated) {
         document.getElementById('buyersInput').value = data.buyers ?? '';
         document.getElementById('resubInput').value = data.resub_rate ?? '';
       } catch (e) {
-        document.getElementById('statsMsg').textContent = '불러오기 실패';
+        document.getElementById('statsMsg').textContent = 'Failed to load stats';
       }
     }
 
@@ -511,15 +524,15 @@ if (!isAuthenticated) {
         });
         const data = await res.json();
         if (data.ok || data.success) {
-          document.getElementById('statsMsg').textContent = '저장되었습니다.';
-          showToast('통계 저장 완료', 'green');
+          document.getElementById('statsMsg').textContent = 'Saved.';
+          showToast('Stats saved', 'green');
         } else {
-          document.getElementById('statsMsg').textContent = data.msg || '저장 실패';
-          showToast(data.msg || '저장 실패', 'red');
+          document.getElementById('statsMsg').textContent = data.msg || 'Save failed';
+          showToast(data.msg || 'Save failed', 'red');
         }
       } catch (e) {
-        document.getElementById('statsMsg').textContent = '저장 실패';
-        showToast('서버 연결 실패', 'red');
+        document.getElementById('statsMsg').textContent = 'Save failed';
+        showToast('Server error', 'red');
       }
     }
 
@@ -529,21 +542,21 @@ if (!isAuthenticated) {
           headers: { ...hdrs(), 'Cache-Control': 'no-cache' },
           cache: 'no-store'
         });
-        if (res.status === 401 || res.status === 403) { showToast('비밀번호 오류', 'red'); return []; }
+        if (res.status === 401 || res.status === 403) { showToast('Invalid password', 'red'); return []; }
         const data = await res.json();
         if (Array.isArray(data)) return data;
         if (data && Array.isArray(data.keys)) return data.keys;
         return [];
-      } catch (e) { showToast('목록 불러오기 실패', 'red'); return []; }
+      } catch (e) { showToast('Failed to load list', 'red'); return []; }
     }
 
     async function generateKey() {
       const name = document.getElementById('genName').value.trim();
-      if (!name) { showToast('구매자 이름 입력', 'red'); return; }
+      if (!name) { showToast('Enter buyer name', 'red'); return; }
       const months = parseInt(document.getElementById('genPeriod').value, 10);
       const maxDevices = parseInt(document.getElementById('genMaxDev').value, 10);
       const btn = document.getElementById('btnGen');
-      btn.disabled = true; btn.textContent = '발급 중...';
+      btn.disabled = true; btn.textContent = 'Issuing...';
       try {
         const res = await fetch('/api/admin/license/issue', {
           method: 'POST', headers: hdrs(),
@@ -552,24 +565,24 @@ if (!isAuthenticated) {
         const data = await res.json();
         if (data.ok) {
           document.getElementById('genKeyVal').textContent = data.key || '';
-          const label = months >= 120 ? '영구' : months + '개월';
+          const label = months >= 120 ? 'Lifetime' : months + ' mo';
           document.getElementById('genKeyMeta').textContent =
-            `${name} · ${label} · 최대 ${maxDevices}대 · 만료: ${data.expires || fmtDate(data.expires_at)}`;
+            `${name} · ${label} · max ${maxDevices} device(s) · Expires: ${data.expires || fmtDate(data.expires_at)}`;
           document.getElementById('genResult').classList.add('show');
           navigator.clipboard.writeText(data.key || '').catch(() => {});
-          showToast('발급 완료! 클립보드에 복사됐어요', 'green');
+          showToast('Issued! Copied to clipboard.', 'green');
           await refreshTable();
-        } else { showToast(data.msg || '발급 실패', 'red'); }
-      } catch (e) { showToast('서버 연결 실패', 'red'); }
-      finally { btn.disabled = false; btn.textContent = '키 발급'; }
+        } else { showToast(data.msg || 'Issue failed', 'red'); }
+      } catch (e) { showToast('Server error', 'red'); }
+      finally { btn.disabled = false; btn.textContent = 'Issue Key'; }
     }
 
     function copyLastKey() {
       const key = document.getElementById('genKeyVal').textContent.trim();
-      if (!key) { showToast('먼저 키를 발급해 주세요.', 'red'); return; }
+      if (!key) { showToast('Issue a key first.', 'red'); return; }
       navigator.clipboard.writeText(key)
-        .then(() => showToast('복사됐어요!', 'green'))
-        .catch(() => showToast('복사 실패', 'red'));
+        .then(() => showToast('Copied!', 'green'))
+        .catch(() => showToast('Copy failed', 'red'));
     }
 
     async function toggleRevoke(id, currentStatus) {
@@ -581,23 +594,23 @@ if (!isAuthenticated) {
         });
         const data = await res.json();
         if (data.ok) {
-          showToast(newStatus === 'suspended' ? '정지됐습니다.' : '복원됐습니다.', newStatus === 'suspended' ? 'red' : 'green');
+          showToast(newStatus === 'suspended' ? 'Suspended.' : 'Restored.', newStatus === 'suspended' ? 'red' : 'green');
           await refreshTable();
-        } else { showToast(data.msg || '처리 실패', 'red'); }
-      } catch (e) { showToast('서버 연결 실패', 'red'); }
+        } else { showToast(data.msg || 'Action failed', 'red'); }
+      } catch (e) { showToast('Server error', 'red'); }
     }
 
     async function deleteKey(id, name) {
-      if (!confirm(name + ' 의 키를 삭제할까요?')) return;
+      if (!confirm('Delete key for: ' + name + '?')) return;
       try {
         const res = await fetch('/api/admin/license/delete', {
           method: 'POST', headers: hdrs(),
           body: JSON.stringify({ id })
         });
         const data = await res.json();
-        if (data.ok) { showToast('삭제됐습니다.', 'green'); await refreshTable(); }
-        else { showToast(data.msg || '삭제 실패', 'red'); }
-      } catch (e) { showToast('서버 연결 실패', 'red'); }
+        if (data.ok) { showToast('Deleted.', 'green'); await refreshTable(); }
+        else { showToast(data.msg || 'Delete failed', 'red'); }
+      } catch (e) { showToast('Server error', 'red'); }
     }
 
     async function refreshTable() {
@@ -630,7 +643,7 @@ if (!isAuthenticated) {
       );
       const body = document.getElementById('tableBody');
       if (!list.length) {
-        body.innerHTML = '<div class="empty-state">발급된 키가 없습니다. 위에서 새 키를 발급해 주세요.</div>';
+        body.innerHTML = '<tr><td colspan="7" class="empty-state">No keys issued yet. Issue a new key above.</td></tr>';
         return;
       }
       body.innerHTML = list.map(k => {
@@ -639,27 +652,28 @@ if (!isAuthenticated) {
         const expTs = new Date(k.expires_at).getTime();
         const isExpired = !Number.isNaN(expTs) && expTs < Date.now() && st === 'active';
         const statusClass = isExpired ? 'expired' : (isSuspended ? 'revoked' : 'active');
-        const statusLabel = isExpired ? '만료' : (isSuspended ? '정지' : '활성');
+        const statusLabel = isExpired ? 'Expired' : (isSuspended ? 'Suspended' : 'Active');
         const safeId = String(k.id).replace(/[^a-zA-Z0-9\-]/g, '');
+        const months = Number(k.months);
         return `
-          <div class="table-row ${isSuspended ? 'revoked' : ''}">
-            <div class="td mono">${k.license_key || '-'}</div>
-            <div class="td">${k.buyer_name || '-'}</div>
-            <div class="td" style="color:var(--text2);font-size:12px">${fmtDate(k.issued_at)}</div>
-            <div class="td" style="font-size:12px">${(Number(k.months) >= 120) ? '영구' : fmtDate(k.expires_at)}</div>
-            <div class="td" style="font-size:12px;color:var(--text2)">${fmtDate(k.last_used)}</div>
-            <div class="td"><span class="status-badge ${statusClass}">${statusLabel}</span></div>
-            <div class="td" style="gap:6px;display:flex;flex-wrap:wrap">
-              <button class="btn-revoke ${isSuspended ? 'revoked' : 'active'}" onclick="toggleRevoke('${safeId}', '${st}')">${isSuspended ? '복원' : '정지'}</button>
-              <button class="btn-revoke active" style="color:var(--text3);border-color:var(--border2)" onclick="deleteKey('${safeId}', '${String(k.license_key || '').replace(/'/g, "\\'")}')">삭제</button>
-            </div>
-          </div>
+          <tr class="${isSuspended ? 'revoked-row' : ''}">
+            <td class="mono" data-label="License Key">${k.license_key || '-'}</td>
+            <td data-label="Customer">${k.buyer_name || '-'}</td>
+            <td data-label="Issued" style="color:var(--text2);font-size:12px">${fmtDate(k.issued_at)}</td>
+            <td data-label="Expires" style="font-size:12px">${months >= 120 ? 'Lifetime' : fmtDate(k.expires_at)}</td>
+            <td data-label="Last Used" style="font-size:12px;color:var(--text2)">${fmtDate(k.last_used)}</td>
+            <td data-label="Status"><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+            <td data-label="Actions" style="white-space:nowrap">
+              <button class="btn-revoke ${isSuspended ? 'revoked' : 'active'}" onclick="toggleRevoke('${safeId}', '${st}')">${isSuspended ? 'Restore' : 'Suspend'}</button>
+              <button class="btn-revoke active" style="color:var(--text3);border-color:var(--border2);margin-left:4px" onclick="deleteKey('${safeId}', '${String(k.license_key || '').replace(/'/g, "\\'")}')">Delete</button>
+            </td>
+          </tr>
         `;
       }).join('');
     }
 
     function exportCSV() {
-      if (!allKeys.length) { showToast('내보낼 데이터가 없습니다.', 'red'); return; }
+      if (!allKeys.length) { showToast('No data to export.', 'red'); return; }
       const rows = [['license_key','buyer_name','months','issued_at','expires_at','last_used','status','device_count','max_devices']];
       allKeys.forEach(k => rows.push([
         k.license_key||'', k.buyer_name||'', k.months||'', k.issued_at||'',
