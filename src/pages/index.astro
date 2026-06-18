@@ -316,6 +316,7 @@ async function loadStats() {
     const r = await fetch('/api/stats');
     if (!r.ok) return;
     const d = await r.json();
+    if (d.buyers) document.getElementById('cnt1').textContent = d.buyers;
     if (d.renewal_rate) document.getElementById('cnt2').textContent = d.renewal_rate;
   } catch(e) {}
 }
@@ -417,7 +418,6 @@ function showToast() {
 document.addEventListener('DOMContentLoaded', async () => {
   loadStats();
   await loadProofData();
-  document.getElementById('cnt1').textContent = proofItems.length;
   renderPurchaseList();
   setTimeout(() => { showToast(); setInterval(showToast, Math.random() * 7000 + 8000); }, 3000);
 });
