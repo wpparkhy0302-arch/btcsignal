@@ -98,10 +98,9 @@ section{padding:80px 24px;}
 .activity-dot.blue{background:var(--blue);}
 .buyer-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .activity-text{font-size:14px;color:var(--text2);font-weight:400;white-space:nowrap;}
-.activity-right{flex-shrink:0;gap:16px;}
-.plan-label{font-size:13px;color:var(--text2);white-space:nowrap;}
-.plan-value{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;}
-.price-value{font-size:14px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);white-space:nowrap;min-width:80px;text-align:right;}
+.activity-right{flex-shrink:0;gap:20px;}
+.plan-value{font-size:13px;font-weight:600;color:var(--text2);white-space:nowrap;}
+.price-value{font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--green);white-space:nowrap;min-width:88px;text-align:right;}
 @media(max-width:600px){
   .activity-row{flex-wrap:wrap;gap:10px;padding:12px 14px;}
   .activity-right{width:100%;justify-content:space-between;}
@@ -331,6 +330,15 @@ const PLAN_MAP = {
 };
 function mapPlan(plan) { return PLAN_MAP[plan] || plan; }
 
+const PLAN_DISPLAY = {
+  '1개월': '1 Month Plan',
+  '3개월': '3 Month Plan',
+  '6개월': '6 Month Plan',
+  '12개월': '12 Month Plan',
+  '24개월 (2년)': '24 Month Plan',
+};
+function formatPlan(plan) { return PLAN_DISPLAY[plan] || (mapPlan(plan) + ' Plan'); }
+
 async function loadProofData() {
   try {
     const res = await fetch(WP_API + '/proof-data?_=' + Date.now(), {
@@ -377,19 +385,14 @@ function renderPurchaseList() {
     const right = document.createElement('div');
     right.className = 'activity-right';
 
-    const planLabel = document.createElement('span');
-    planLabel.className = 'plan-label';
-    planLabel.textContent = 'Plan:';
-
     const planVal = document.createElement('span');
     planVal.className = 'plan-value';
-    planVal.textContent = mapPlan(p.plan);
+    planVal.textContent = formatPlan(p.plan);
 
     const price = document.createElement('span');
     price.className = 'price-value';
     price.textContent = p.price;
 
-    right.appendChild(planLabel);
     right.appendChild(planVal);
     right.appendChild(price);
 
