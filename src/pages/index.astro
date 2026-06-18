@@ -82,6 +82,8 @@ section{padding:80px 24px;}
 .pp-val{font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);}
 .purchase-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
 .purchase-live-badge{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text2);background:var(--card2);border:1px solid var(--border);padding:6px 14px;border-radius:20px;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;flex-shrink:0;animation:pulseLive 1.4s infinite;}
+@keyframes pulseLive{0%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(1.3);}100%{opacity:1;transform:scale(1);}}
 .activity-list{display:flex;flex-direction:column;gap:12px;}
 .activity-row{
   display:flex;justify-content:space-between;align-items:center;
@@ -217,7 +219,7 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
         <div class="sec-title" style="font-size:28px;margin-bottom:0">People are joining right now</div>
       </div>
       <div class="purchase-live-badge">
-        <div class="pi-dot green" style="animation:blink 1s infinite"></div>
+        <span class="live-dot"></span>
         Updating Live
       </div>
     </div>
