@@ -133,13 +133,16 @@ section{padding:80px 24px;}
 .cta-sec{padding:80px 24px;background:linear-gradient(135deg,var(--card),rgba(6,182,107,0.05));}
 .btn-support{padding:14px 28px;background:transparent;color:#29a8e8;border:1px solid rgba(41,168,232,.4);border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;display:inline-block;transition:background .2s,border-color .2s;}
 .btn-support:hover{background:rgba(41,168,232,.1);border-color:rgba(41,168,232,.7);}
-.refund-sec{padding:60px 24px;background:var(--bg);border-top:1px solid var(--border);}
-.refund-box{max-width:720px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px 40px;}
-@media(max-width:600px){.refund-box{padding:24px 20px;}}
-.refund-title{font-size:18px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
-.refund-item{font-size:14px;color:var(--text2);line-height:1.8;padding:10px 0;border-bottom:1px solid var(--border);}
-.refund-item:last-child{border-bottom:none;padding-bottom:0;}
-.refund-item strong{color:var(--text);}
+.refund-sec{padding:80px 24px;background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.refund-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:768px){.refund-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.refund-grid{grid-template-columns:1fr;}}
+.refund-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:24px;}
+.refund-card-icon{font-size:28px;margin-bottom:12px;}
+.refund-card-title{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text);}
+.refund-card-desc{font-size:13px;color:var(--text2);line-height:1.7;}
+.refund-card-desc a{color:var(--blue);text-decoration:none;}
+.refund-card-desc a:hover{text-decoration:underline;}
 footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24px;text-align:center;font-size:12px;color:var(--text3);line-height:1.8;}
 </style>
 </head>
@@ -310,21 +313,28 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
   </div>
 </section>
 <section class="refund-sec">
-  <div class="refund-box">
-    <div class="refund-title">📋 Refund Policy</div>
-    <div class="refund-item">
-      <strong>No Refunds in Principle</strong><br>
-      Due to the irreversible nature of cryptocurrency transactions, all payments are final and non-refundable as a general rule.
+  <div class="inner">
+    <div class="text-center">
+      <div class="sec-badge">Refund Policy</div>
+      <div class="sec-title">Transparent Payment Terms</div>
+      <p class="sec-sub center">Please read before purchasing. We aim to be clear and fair about how refunds work.</p>
     </div>
-    <div class="refund-item">
-      <strong>Exception — Limited Review Window</strong><br>
-      Refund requests may be reviewed on an exceptional basis only if <em>both</em> of the following conditions are met:<br>
-      &nbsp;&nbsp;① The request is submitted within <strong>24 hours</strong> of purchase, and<br>
-      &nbsp;&nbsp;② The service (license key) has <strong>not been used</strong> at all.
-    </div>
-    <div class="refund-item">
-      <strong>How to Request</strong><br>
-      Contact us directly on Telegram: <a href="https://t.me/BTC_SIGNAL_AI" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;">@BTC_SIGNAL_AI</a>. Include your payment details and reason for the request. We typically respond within 24 hours.
+    <div class="refund-grid">
+      <div class="refund-card">
+        <div class="refund-card-icon">🔒</div>
+        <div class="refund-card-title">No Refunds in Principle</div>
+        <div class="refund-card-desc">Due to the irreversible nature of cryptocurrency transactions, all payments are final and non-refundable as a general rule once processed on-chain.</div>
+      </div>
+      <div class="refund-card">
+        <div class="refund-card-icon">⏱️</div>
+        <div class="refund-card-title">24-Hour Exception Window</div>
+        <div class="refund-card-desc">Refund requests may be reviewed on a case-by-case basis only if <strong style="color:var(--text)">both</strong> conditions are met: ① submitted within <strong style="color:var(--text)">24 hours</strong> of purchase, and ② the license key has <strong style="color:var(--text)">not been used</strong> at all.</div>
+      </div>
+      <div class="refund-card">
+        <div class="refund-card-icon">✈️</div>
+        <div class="refund-card-title">Contact via Telegram</div>
+        <div class="refund-card-desc">Reach us at <a href="https://t.me/BTC_SIGNAL_AI" target="_blank" rel="noopener">@BTC_SIGNAL_AI</a> with your payment details and reason. We typically respond within 24 hours and handle every inquiry individually.</div>
+      </div>
     </div>
   </div>
 </section>
