@@ -131,6 +131,15 @@ section{padding:80px 24px;}
 .price-btn.primary{background:var(--green);color:#fff;}
 .price-btn.ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
 .cta-sec{padding:80px 24px;background:linear-gradient(135deg,var(--card),rgba(6,182,107,0.05));}
+.btn-support{padding:14px 28px;background:transparent;color:#29a8e8;border:1px solid rgba(41,168,232,.4);border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;display:inline-block;transition:background .2s,border-color .2s;}
+.btn-support:hover{background:rgba(41,168,232,.1);border-color:rgba(41,168,232,.7);}
+.refund-sec{padding:60px 24px;background:var(--bg);border-top:1px solid var(--border);}
+.refund-box{max-width:720px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:36px 40px;}
+@media(max-width:600px){.refund-box{padding:24px 20px;}}
+.refund-title{font-size:18px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.refund-item{font-size:14px;color:var(--text2);line-height:1.8;padding:10px 0;border-bottom:1px solid var(--border);}
+.refund-item:last-child{border-bottom:none;padding-bottom:0;}
+.refund-item strong{color:var(--text);}
 footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24px;text-align:center;font-size:12px;color:var(--text3);line-height:1.8;}
 </style>
 </head>
@@ -294,7 +303,29 @@ footer{background:var(--card);border-top:1px solid var(--border);padding:28px 24
   <div class="inner" style="text-align:center;padding:20px 0;">
     <div class="sec-title">Start today</div>
     <p class="sec-sub center" style="margin:14px auto 32px;">Message us on Telegram, pay with USDT, and receive your license key right away.</p>
-    <a class="btn-primary" href="#pricing" style="font-size:17px;padding:18px 48px;">Buy Now</a>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a class="btn-primary" href="#pricing" style="font-size:17px;padding:18px 48px;">Buy Now</a>
+      <a class="btn-support" href="https://t.me/BTC_SIGNAL_AI" target="_blank" rel="noopener" style="font-size:17px;padding:18px 32px;">✈ Contact Support</a>
+    </div>
+  </div>
+</section>
+<section class="refund-sec">
+  <div class="refund-box">
+    <div class="refund-title">📋 Refund Policy</div>
+    <div class="refund-item">
+      <strong>No Refunds in Principle</strong><br>
+      Due to the irreversible nature of cryptocurrency transactions, all payments are final and non-refundable as a general rule.
+    </div>
+    <div class="refund-item">
+      <strong>Exception — Limited Review Window</strong><br>
+      Refund requests may be reviewed on an exceptional basis only if <em>both</em> of the following conditions are met:<br>
+      &nbsp;&nbsp;① The request is submitted within <strong>24 hours</strong> of purchase, and<br>
+      &nbsp;&nbsp;② The service (license key) has <strong>not been used</strong> at all.
+    </div>
+    <div class="refund-item">
+      <strong>How to Request</strong><br>
+      Contact us directly on Telegram: <a href="https://t.me/BTC_SIGNAL_AI" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none;">@BTC_SIGNAL_AI</a>. Include your payment details and reason for the request. We typically respond within 24 hours.
+    </div>
   </div>
 </section>
 <footer>
